@@ -87,17 +87,6 @@ public class Main {
 		glfwMakeContextCurrent(window);
 		// Enable v-sync
 		glfwSwapInterval(1);
-		
-//		glEnable(GL_BLEND);
-//    	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    	
-//    	glViewport(0, 0, WIDTH, HEIGHT);
-//		glMatrixMode(GL_MODELVIEW);
-//		
-//		glMatrixMode(GL_PROJECTION);
-//		glLoadIdentity();
-//		glOrtho(0, WIDTH, HEIGHT, 0, 1, -1);
-//		glMatrixMode(GL_MODELVIEW);
 
 		// Make the window visible
 		glfwShowWindow(window);
@@ -122,7 +111,7 @@ public class Main {
 	}
 	
 	public void loadTextures() {
-		loadTexture("HAAHAHA", "staintest");
+		loadTexture("water", "staintest");
 	}
 	
 	public void loadTexture(String imageName, String key) {
