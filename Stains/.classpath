@@ -59,7 +59,11 @@
 	<classpathentry kind="lib" path="lib/lwjgl-opengl-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl-opengl-natives-windows.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl-opengl-sources.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl-opengl.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-opengl.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/Stains/lib/lwjgl-opengl-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/lwjgl-opengles-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl-opengles-natives-windows.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl-opengles-sources.jar"/>
@@ -121,14 +125,5 @@
 	<classpathentry kind="lib" path="lib/lwjgl-zstd-sources.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl-zstd.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl.jar"/>
-	<classpathentry kind="lib" path="lib/ibxm.jar"/>
-	<classpathentry kind="lib" path="lib/jogg-0.0.7.jar"/>
-	<classpathentry kind="lib" path="lib/jorbis-0.0.15.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl_util_applet.jar"/>
-	<classpathentry kind="lib" path="lib/lwjgl_util.jar"/>
-	<classpathentry kind="lib" path="lib/natives-linux.jar"/>
-	<classpathentry kind="lib" path="lib/natives-mac.jar"/>
-	<classpathentry kind="lib" path="lib/natives-windows.jar"/>
-	<classpathentry kind="lib" path="lib/slick-util.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
