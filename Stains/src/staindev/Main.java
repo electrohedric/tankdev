@@ -6,8 +6,6 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import constants.Sizeof;
-import helpers.Loader;
-import helpers.ShaderPair;
 
 import java.nio.*;
 
@@ -54,7 +52,7 @@ public class Main {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
 		// Create the window
-		window = glfwCreateWindow(300, 300, "Here come dat boi!", NULL, NULL);
+		window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 
@@ -106,35 +104,32 @@ public class Main {
 		
 		float positions[] = {
 			-0.5f, -0.5f,
-			 0.5f, -0.5f,
-			 0.5f,  0.5f,
-			-0.5f,  0.5f,
+			 0.0f,  0.5f,
+			 0.5f, -0.5f
 		};
 		
-		int indices[] = {
-			0, 1, 2,
-			2, 3, 0
-		};
-		
-		int vertexBuffer = glGenBuffers();
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		int buffer = glGenBuffers();
+		glBindBuffer(GL_ARRAY_BUFFER, buffer);
 		glBufferData(GL_ARRAY_BUFFER, positions, GL_STATIC_DRAW);
-		
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 2, GL_FLOAT, false, Sizeof.FLOAT * 2, 0);
 		
-		int indexBuffer = glGenBuffers();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+		String vertex = 
+				"#version 330 core\n" +
+				"layout(location = 0) in vec4 pos;\n" +
+				"void main() {\n" +
+				"  gl_Position = pos;\n" +
+				"}";
 		
-		ShaderPair triangleShader = Loader.loadShader("triangle");
-		int program = createShader(triangleShader);
+		String fragment = 
+				"#version 330 core\n" +
+				"layout(location = 0) out vec4 color;\n" +
+				"void main() {\n" +
+				"  color = vec4(1.0, 0.0, 0.0, 1.0);\n" +
+				"}";
+		
+		int program = createShader(vertex, fragment);
 		glUseProgram(program);
-		
-		int colorLocation = glGetUniformLocation(program, "u_color");
-		assert(colorLocation != -1);
-		
-		float r = 0.0f;
 		
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
@@ -142,11 +137,8 @@ public class Main {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 			
 			// RENDER
-			glUniform4f(colorLocation, r, 0.4f, 0.3f, 1.0f);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+			glDrawArrays(GL_TRIANGLES, 0, 3);
 			
-			r += 0.1f;
-			if(r > 1.0f) r = 0.0f;
 			
 			glfwSwapBuffers(window); // swap the color buffers
 			
@@ -154,8 +146,6 @@ public class Main {
 			// invoked during this call.
 			glfwPollEvents();
 		}
-		
-		glDeleteProgram(program);
 	}
 	
 	private int compileShader(String source, int type) {
@@ -188,10 +178,6 @@ public class Main {
 		glDeleteShader(fs);
 		
 		return program;
-	}
-	
-	private int createShader(ShaderPair shader) {
-		return createShader(shader.getVertex(), shader.getFragment());
 	}
 
 	public static void main(String[] args) {
