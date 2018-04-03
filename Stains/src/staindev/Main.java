@@ -121,7 +121,7 @@ public class Main {
 		glBufferData(GL_ARRAY_BUFFER, positions, GL_STATIC_DRAW);
 		
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, Sizeof.FLOAT * 2, 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, false, Sizeof.FLOAT * 2, NULL);
 		
 		int indexBuffer = glGenBuffers();
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -145,7 +145,7 @@ public class Main {
 			glUniform4f(colorLocation, r, 0.4f, 0.3f, 1.0f);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 			
-			r += 0.1f;
+			r += 0.01f;
 			if(r > 1.0f) r = 0.0f;
 			
 			glfwSwapBuffers(window); // swap the color buffers
