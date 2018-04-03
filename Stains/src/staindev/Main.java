@@ -1,23 +1,27 @@
 package staindev;
 
-import org.lwjgl.*;
-import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
-
-import constants.Sizeof;
-import helpers.Loader;
-import helpers.ShaderPair;
-
-import java.nio.*;
-
-import static org.lwjgl.glfw.Callbacks.*;
+import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
+
+import java.nio.IntBuffer;
+
+import org.lwjgl.Version;
+import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryStack;
+
+import constants.Sizeof;
+import gl.IndexBuffer;
+import gl.VertexBuffer;
+import helpers.Loader;
+import helpers.ShaderPair;
 
 public class Main {
 
@@ -111,20 +115,25 @@ public class Main {
 			-0.5f,  0.5f,
 		};
 		
-		int indices[] = {
+		short indices[] = {
 			0, 1, 2,
 			2, 3, 0
 		};
 		
-		int vertexBuffer = glGenBuffers();
-		glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+		int vao = glGenVertexArrays();
+		glBindVertexArray(vao);
+		
+		//VertexBuffer vbo = new VertexBuffer(positions);
+		int vid = glGenBuffers();
+		glBindBuffer(GL_ARRAY_BUFFER, vid);
 		glBufferData(GL_ARRAY_BUFFER, positions, GL_STATIC_DRAW);
 		
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, Sizeof.FLOAT * 2, 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, false, Sizeof.FLOAT * 2, NULL);
 		
-		int indexBuffer = glGenBuffers();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+		//IndexBuffer ibo = new IndexBuffer(indices);
+		int iid = glGenBuffers();
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iid);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 		
 		ShaderPair triangleShader = Loader.loadShader("triangle");
@@ -136,19 +145,30 @@ public class Main {
 		
 		float r = 0.0f;
 		
+		//glBindVertexArray(0);
+		//glUseProgram(0);
+		//vbo.unbind();
+		//ibo.unbind();
+		
+		
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		while ( !glfwWindowShouldClose(window) ) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 			
 			// RENDER
-			glUniform4f(colorLocation, r, 0.4f, 0.3f, 1.0f);
+			//glUseProgram(program);
+			glUniform4f(colorLocation, (float) Math.sin(r), (float) Math.cos(r), 1 - (float) Math.cos(r), 1.0f);
+			
+			//glBindVertexArray(vao);
+			//ibo.bind();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 			
-			r += 0.1f;
-			if(r > 1.0f) r = 0.0f;
+			//glBindVertexArray(0);
 			
-			glfwSwapBuffers(window); // swap the color buffers
+			r += 0.02f;
+			
+			glfwSwapBuffers(window); // swap the color buffers (tick)
 			
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.
