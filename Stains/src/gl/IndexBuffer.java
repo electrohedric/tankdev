@@ -6,7 +6,7 @@ public class IndexBuffer {
 
 	private int id;
 	
-	public IndexBuffer(short[] data) {
+	public IndexBuffer(int[] data) {
 		id = glGenBuffers();
 		bind();
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, data, GL_STATIC_DRAW);
@@ -23,4 +23,5 @@ public class IndexBuffer {
 	public void delete() {
 		glDeleteBuffers(id);
 	}
+	
 }
