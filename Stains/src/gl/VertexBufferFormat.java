@@ -38,7 +38,7 @@ public class VertexBufferFormat {
 		return elements;
 	}
 
-	public void finalize() {
+	protected void finalize() {
 		for(VertexBufferElement element : elements)
 			element.finalize(stride);
 	}

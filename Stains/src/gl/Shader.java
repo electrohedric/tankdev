@@ -17,11 +17,11 @@ public class Shader {
 	private int id;
 	private Map<String, Integer> uniforms = new HashMap<String, Integer>();
 	
-	public Shader(String shaderName) {
+	public Shader(String shaderName, String ... uniforms) {
 		List<String> source = null;
 		try {
 			 // read in file decoded as utf-8 to list
-			source = Files.readAllLines(Paths.get(Resources.RES_PATH + Resources.SHADER_FOLDER + shaderName + Resources.SHADER_EXT));
+			source = Files.readAllLines(Paths.get(Resources.SHADERS_PATH + shaderName));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
@@ -45,6 +45,9 @@ public class Shader {
 		
 		id = createShader(shaders[0].toString(), shaders[1].toString());
 		bind();
+		
+		for(String uniform : uniforms)
+			linkUniform(uniform);
 	}
 	
 	public void bind() {

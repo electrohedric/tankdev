@@ -15,6 +15,7 @@ import org.lwjgl.system.MemoryStack;
 
 import gl.IndexBuffer;
 import gl.Shader;
+import gl.Texture;
 import gl.VertexArray;
 import gl.VertexBuffer;
 import gl.VertexBufferFormat;
@@ -88,6 +89,23 @@ public class Main {
 		// Make the window visible
 		glfwShowWindow(window);
 	}
+	
+	public static void checkError() {
+		int error = glGetError();
+		boolean errorOccured = false;
+		while(error != 0) {
+			System.out.println(error);
+			error = glGetError();
+			errorOccured = true;
+		}
+		if(errorOccured) {
+			System.out.println("-----");
+		}
+	}
+	
+	public static void clearError() {
+		while(glGetError() != 0) {} // just loop until error is 0
+	}
 
 	private void loop() {
 		// This line is critical for LWJGL's interoperation with GLFW's
@@ -99,59 +117,64 @@ public class Main {
 		System.out.println("OpenGL version " + glGetString(GL_VERSION));
 
 		// Set the clear color
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
 
 		/*
 		 * +---+
 		 * |   |
 		 * +---+
+		 * x, y, u, v
 		 */
 		float positions[] = { 
-			   -0.5f, -0.5f,
-				0.5f, -0.5f, 
-				0.5f,  0.5f, 
-			   -0.5f,  0.5f
+			   -0.5f, -0.5f, 0.0f, 0.0f, 
+				0.5f, -0.5f, 1.0f, 0.0f,
+				0.5f,  0.5f, 1.0f, 1.0f,
+			   -0.5f,  0.5f, 0.0f, 1.0f
 		};
 
 		int indices[] = { 
 				0, 1, 2,
 				2, 3, 0
 		};
+		
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		VertexArray vao = new VertexArray();
 		
 		VertexBufferFormat format = new VertexBufferFormat();
-		format.pushFloat(2);
-		VertexBuffer vbo = new VertexBuffer(positions, format);
-		vao.addBuffer(vbo);
+		format.pushFloat(2); // pos
+		format.pushFloat(2); // texCoord
+		
+		vao.addBuffer(new VertexBuffer(positions, format));
 
 		IndexBuffer ibo = new IndexBuffer(indices);
 
-		Shader shader = new Shader("triangle");
-		shader.linkUniform("u_color");
-
-		float r = 0.0f;
+		Shader shader = new Shader("triangle.shader", "u_Texture");
+		
+		Texture tex = new Texture("ball.png");
+		tex.bind();
+		shader.set("u_Texture", 0);
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		while (!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
+			
 			// RENDER
 			shader.bind();
-			shader.set("u_color", (float) Math.sin(r), (float) Math.cos(r), 1 - (float) Math.cos(r), 1.0f);
+			// set uniforms here
 
 			vao.bind();
 			ibo.bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-			r += 0.03f;
+			glDrawElements(GL_TRIANGLES, ibo.length, GL_UNSIGNED_INT, 0);
 
 			glfwSwapBuffers(window); // swap the color buffers (tick)
 
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.
 			glfwPollEvents();
+			checkError();
 		}
 
 		shader.delete();
