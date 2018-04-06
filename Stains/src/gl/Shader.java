@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
+
 import constants.Resources;
 
 public class Shader {
@@ -88,6 +91,10 @@ public class Shader {
 	
 	public void set(String uniform, int a) {
 		glUniform1i(uniforms.get(uniform), a);
+	}
+	
+	public void set(String uniform, Matrix4f a) {
+		glUniformMatrix4fv(uniforms.get(uniform), false, a.get(BufferUtils.createFloatBuffer(16)));
 	}
 	
 	private int compileShader(String source, int type) {
