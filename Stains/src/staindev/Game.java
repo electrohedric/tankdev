@@ -7,19 +7,17 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 
 import java.nio.IntBuffer;
 
-import org.joml.Matrix4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import gl.IndexBuffer;
 import gl.Shader;
 import gl.Texture;
 import gl.VertexArray;
-import gl.VertexBuffer;
-import gl.VertexBufferFormat;
+import objects.GameObject;
+import objects.Rect;
 
 public class Game {
 
@@ -28,6 +26,7 @@ public class Game {
 	private static String TITLE = "Stain Game";
 	public static int WIDTH = 800;
 	public static int HEIGHT = 600;
+	public static VertexArray vao; // VAO for the entire Game
 	
 	public static void main(String[] args) {
 		System.out.println("LWJGL version " + Version.getVersion());
@@ -92,6 +91,19 @@ public class Game {
 
 		// Make the window visible
 		glfwShowWindow(window);
+		
+		// init buffers and things
+		
+		// This line is critical for LWJGL's interoperation with GLFW's
+		// OpenGL context, or any context that is managed externally.
+		// LWJGL detects the context that is current in the current thread,
+		// creates the GLCapabilities instance and makes the OpenGL
+		// bindings available for use.
+		GL.createCapabilities();
+		System.out.println("OpenGL version " + glGetString(GL_VERSION));
+		
+		vao = new VertexArray();
+		Rect.init(); // using rectangle, so let's initialize it
 	}
 	
 	public static void checkError() {
@@ -112,14 +124,6 @@ public class Game {
 	}
 
 	private static void loop() {
-		// This line is critical for LWJGL's interoperation with GLFW's
-		// OpenGL context, or any context that is managed externally.
-		// LWJGL detects the context that is current in the current thread,
-		// creates the GLCapabilities instance and makes the OpenGL
-		// bindings available for use.
-		GL.createCapabilities();
-		System.out.println("OpenGL version " + glGetString(GL_VERSION));
-
 		// Set the clear color
 		glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
 
@@ -129,39 +133,18 @@ public class Game {
 		 * +---+
 		 * x, y, u, v
 		 */
-		float positions[] = { 
-			   -0.5f, -0.5f, 0.0f, 0.0f, 
-				0.5f, -0.5f, 1.0f, 0.0f,
-				0.5f,  0.5f, 1.0f, 1.0f,
-			   -0.5f,  0.5f, 0.0f, 1.0f
-		};
-
-		int indices[] = { 
-				0, 1, 2,
-				2, 3, 0
-		};
 		
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		VertexArray vao = new VertexArray();
-		
-		VertexBufferFormat format = new VertexBufferFormat();
-		format.pushFloat(2); // pos
-		format.pushFloat(2); // texCoord
-		
-		vao.addBuffer(new VertexBuffer(positions, format));
-
-		IndexBuffer ibo = new IndexBuffer(indices);
-		
 		Shader shader = new Shader("texture.shader", "u_Texture", "u_MVP");
-		float aspectRatio = (float) WIDTH / HEIGHT;
-		Matrix4f proj = new Matrix4f().ortho(-aspectRatio, aspectRatio, -1.0f, 1.0f, -1.0f, 1.0f);
-		shader.set("u_MVP", proj);
 		
 		Texture tex = new Texture("ball.png");
-		tex.bind();
-		shader.set("u_Texture", 0);
+		
+		GameObject dot = new GameObject(128, 128, 0, 1.0f, tex, shader);
+		
+		float x = 0;
+		float t = 0;
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
@@ -169,12 +152,8 @@ public class Game {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 			
 			// RENDER
-			shader.bind();
-			// set uniforms here
-
-			vao.bind();
-			ibo.bind();
-			glDrawElements(GL_TRIANGLES, ibo.length, GL_UNSIGNED_INT, 0);
+			dot.x += 1f;
+			dot.render();
 
 			glfwSwapBuffers(window); // swap the color buffers (tick)
 
@@ -182,6 +161,8 @@ public class Game {
 			// invoked during this call.
 			glfwPollEvents();
 			checkError();
+//			x = (float) Math.sin(3 * t);
+//			t += 0.01666667f;
 		}
 
 		shader.delete();

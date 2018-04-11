@@ -75,4 +75,13 @@ public class Texture {
 	public void delete() {
 		glDeleteTextures(id);
 	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+	
 }
