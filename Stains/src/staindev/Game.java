@@ -6,6 +6,8 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -13,20 +15,26 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
+import entities.Entity;
+import entities.Player;
 import gl.Shader;
 import gl.Texture;
 import gl.VertexArray;
 import objects.GameObject;
 import objects.Rect;
+import util.Mouse;
 
 public class Game {
 
 	// The window handle
-	private static long window;
+	public static long window;
 	private static String TITLE = "Stain Game";
 	public static int WIDTH = 800;
 	public static int HEIGHT = 600;
 	public static VertexArray vao; // VAO for the entire Game
+	public static float delta = 0.0f;
+	public static List<Entity> entities;
+	public static Player player;
 	
 	public static void main(String[] args) {
 		System.out.println("LWJGL version " + Version.getVersion());
@@ -63,10 +71,12 @@ public class Game {
 			throw new RuntimeException("Failed to create the GLFW window");
 
 		// Setup a key callback. It will be called every time a key is pressed, repeated
-		// or released.
+		// or released. This will be for events such as things that happen once, other
+		// keys will be recognized with glfwGetKey
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-			if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+			if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
 				glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+			}
 		});
 
 		// Get the thread stack and push a new frame
@@ -86,8 +96,8 @@ public class Game {
 
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
-		// Enable v-sync
-		glfwSwapInterval(1);
+		// Disable v-sync
+		glfwSwapInterval(0);
 
 		// Make the window visible
 		glfwShowWindow(window);
@@ -104,6 +114,7 @@ public class Game {
 		
 		vao = new VertexArray();
 		Rect.init(); // using rectangle, so let's initialize it
+		entities = new ArrayList<>();
 	}
 	
 	public static void checkError() {
@@ -139,30 +150,40 @@ public class Game {
 
 		Shader shader = new Shader("texture.shader", "u_Texture", "u_MVP");
 		
-		Texture tex = new Texture("ball.png");
+		Texture playerTexture = new Texture("player/alive.png", 98, 107);
+		Texture ketchupTexture = new Texture("stains/ketchup/alive.png");
 		
-		GameObject dot = new GameObject(128, 128, 0, 1.0f, tex, shader);
-		
-		float x = 0;
-		float t = 0;
+		player = new Player(500, 500, 0, 0, 0, 0.4f, playerTexture, shader);
+		GameObject ketchup = new GameObject(128, 128, 0, 1.0f, ketchupTexture, shader);
+		entities.add(player);
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
+		long lastSystemTime = System.nanoTime();
+		
 		while (!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 			
 			// RENDER
-			dot.x += 1f;
-			dot.render();
+			ketchup.x += 100.0f * delta; // 100 pixels / second
+			ketchup.render();
+			
+			for(Entity e : entities) {
+				e.update();
+				e.render();
+			}
 
 			glfwSwapBuffers(window); // swap the color buffers (tick)
 
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.
 			glfwPollEvents();
+			Mouse.getUpdate();
 			checkError();
-//			x = (float) Math.sin(3 * t);
-//			t += 0.01666667f;
+			
+			long currentSystemTime = System.nanoTime();
+			delta = (currentSystemTime - lastSystemTime) / 1000000000.0f; // nanoseconds -> seconds
+			lastSystemTime = currentSystemTime;
 		}
 
 		shader.delete();

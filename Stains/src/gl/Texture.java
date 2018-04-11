@@ -18,19 +18,29 @@ public class Texture {
 	private int id;
 	private int width;
 	private int height;
+	private float offsetX;
+	private float offsetY;
 	//private ByteBuffer data; // NOTE: we may want to retain this bytebuffer so we can sample pixels if we wish
 	
+	public Texture(String name, int centerX, int centerY) {
+		loadImageToGL(name);
+		this.offsetX = centerX / 2.0f - width / 4.0f;
+		this.offsetY = centerY / 2.0f - height / 4.0f;
+	}
+	
 	public Texture(String name) {
-		// load the texture
+		loadImageToGL(name);
+		offsetX = 0;
+		offsetY = 0;
+	}
+	
+	public void loadImageToGL(String name) {
 		BufferedImage image = null;
 		try {
 			image = ImageIO.read(new File(Resources.IMAGES_PATH + name));
 		} catch (IOException e) {
 			e.printStackTrace();
-			return;
 		}
-		
-		//get pixels
 		
 		width = image.getWidth();
 		height = image.getHeight();
@@ -47,7 +57,6 @@ public class Texture {
 		data.put(storeBytes);
 		data.flip(); // openGL wants data starting from bottom left corner
 		
-		//opengl for textures
 		id = glGenTextures();
 		bind();
 		
@@ -82,6 +91,14 @@ public class Texture {
 
 	public int getHeight() {
 		return height;
+	}
+
+	public float getOffsetX() {
+		return offsetX;
+	}
+
+	public float getOffsetY() {
+		return offsetY;
 	}
 	
 }

@@ -48,7 +48,10 @@ public class GameObject {
 		Rect.bind(); // binds the VAO
 		program.set("u_Texture", slot);
 		Matrix4f proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
-		Matrix4f model = new Matrix4f().translate(x, y, 0).mul(new Matrix4f().scale(texture.getWidth() * scale, texture.getHeight() * scale, 1.0f));
+		Matrix4f model = new Matrix4f().translate(x, y, 0).mul(
+						 new Matrix4f().rotate(rot, 0.0f, 0.0f, 1.0f)).mul(
+						 new Matrix4f().translate(-texture.getOffsetX(), texture.getOffsetY(), 0).mul(
+						 new Matrix4f().scale(texture.getWidth() * scale, texture.getHeight() * scale, 1.0f)));
 		Matrix4f mvp = proj.mul(model); // M x V x P
 		program.set("u_MVP", mvp);
 		glDrawElements(GL_TRIANGLES, Rect.ibo.length, GL_UNSIGNED_INT, 0);
