@@ -3,12 +3,13 @@ package entities;
 import gl.Shader;
 import gl.Texture;
 import staindev.Game;
+import util.ClickListener;
 import util.Key;
 import util.Mouse;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class Player extends Entity {
+public class Player extends Entity implements ClickListener {
 	
 	/** in pixels per second **/
 	private int moveSpeed;
@@ -16,6 +17,7 @@ public class Player extends Entity {
 	public Player(float x, float y, float vx, float vy, float rot, float scale, Texture texture, Shader program) {
 		super(x, y, vx, vy, rot, scale, texture, program);
 		moveSpeed = 200;
+		Game.mouseClickCallback.add(this); // add this Player as a mouse click listener
 	}
 
 	@Override
@@ -47,7 +49,16 @@ public class Player extends Entity {
 	}
 	
 	private void checkMouse() {
-		System.out.println(x + ", " + y);
 		rot = (float) (Math.atan2(Mouse.y - y, Mouse.x - x) - Math.PI / 2);
+	}
+
+	@Override
+	public void handleClick(int button) {
+		scale *= 1.1;
+	}
+
+	@Override
+	public void handleRelease(int button) {
+		
 	}
 }

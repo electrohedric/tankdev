@@ -24,8 +24,8 @@ public class Texture {
 	
 	public Texture(String name, int centerX, int centerY) {
 		loadImageToGL(name);
-		this.offsetX = centerX / 2.0f - width / 4.0f;
-		this.offsetY = centerY / 2.0f - height / 4.0f;
+		this.offsetX = centerX - width / 2.0f;
+		this.offsetY = centerY - height / 2.0f;
 	}
 	
 	public Texture(String name) {

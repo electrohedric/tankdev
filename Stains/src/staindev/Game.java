@@ -22,6 +22,7 @@ import gl.Texture;
 import gl.VertexArray;
 import objects.GameObject;
 import objects.Rect;
+import util.ClickListener;
 import util.Mouse;
 
 public class Game {
@@ -35,6 +36,8 @@ public class Game {
 	public static float delta = 0.0f;
 	public static List<Entity> entities;
 	public static Player player;
+	
+	public static List<ClickListener> mouseClickCallback;
 	
 	public static void main(String[] args) {
 		System.out.println("LWJGL version " + Version.getVersion());
@@ -75,8 +78,16 @@ public class Game {
 		// keys will be recognized with glfwGetKey
 		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
 			if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-				glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
+				glfwSetWindowShouldClose(window, true);
 			}
+		});
+		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
+			if(action == GLFW_PRESS)
+				for(ClickListener listener : mouseClickCallback)
+					listener.handleClick(button);
+			else if(action == GLFW_RELEASE)
+				for(ClickListener listener : mouseClickCallback)
+					listener.handleRelease(button);
 		});
 
 		// Get the thread stack and push a new frame
@@ -115,6 +126,7 @@ public class Game {
 		vao = new VertexArray();
 		Rect.init(); // using rectangle, so let's initialize it
 		entities = new ArrayList<>();
+		mouseClickCallback = new ArrayList<>();
 	}
 	
 	public static void checkError() {
