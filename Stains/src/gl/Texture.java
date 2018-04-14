@@ -12,32 +12,44 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 
 import constants.Resources;
+import objects.Renderable;
 
-public class Texture {
+public class Texture implements Renderable {
 	
 	private int id;
 	private int width;
 	private int height;
 	private float offsetX;
 	private float offsetY;
+	private float offsetRot;
 	//private ByteBuffer data; // NOTE: we may want to retain this bytebuffer so we can sample pixels if we wish
 	
-	public Texture(String name, int centerX, int centerY) {
+	/**
+	 * Creates a Texture which can render to the screen. Handles all behind-the-scenes OpenGL code.
+	 * @param name Path relative to <strong>res/textures</strong> to the file containing the texture
+	 * @param centerX The center X pixel which the texture will rotate about
+	 * @param centerY The center Y pixel which the texture will rotate about
+	 * @param quarterTurns The number of <code>PI/2</code> turns in the positive direction (i.e. counter-clockwise) 
+	 * 					   which the texture is rotated intially from facing to the right
+	 */
+	public Texture(String name, float centerX, float centerY, float quarterTurns) {
 		loadImageToGL(name);
-		this.offsetX = centerX - width / 2.0f;
-		this.offsetY = centerY - height / 2.0f;
+		this.offsetX = centerX - (width / 2.0f);
+		this.offsetY = centerY - (height / 2.0f);
+		this.offsetRot = (float) (quarterTurns * Math.PI / 2);
 	}
 	
 	public Texture(String name) {
 		loadImageToGL(name);
 		offsetX = 0;
 		offsetY = 0;
+		this.offsetRot = 0;
 	}
 	
 	public void loadImageToGL(String name) {
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new File(Resources.IMAGES_PATH + name));
+			image = ImageIO.read(new File(Resources.TEXTURES_PATH + name));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -101,4 +113,7 @@ public class Texture {
 		return offsetY;
 	}
 	
+	public float getOffsetRot() {
+		return offsetRot;
+	}
 }

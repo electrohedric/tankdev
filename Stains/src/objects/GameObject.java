@@ -19,7 +19,7 @@ public class GameObject {
 	public float rot;
 	public float scale;
 	
-	private Texture texture;
+	private Renderable texture;
 	private int slot;
 	private Shader program;
 	
@@ -29,10 +29,10 @@ public class GameObject {
 	 * @param y Initial Y
 	 * @param rot Initial rotation, in radians
 	 * @param scale Initial scale from actual size
-	 * @param texture Texture to render with
-	 * @param program Shader program to render with. Must have the following uniforms: uTexture, u_MVP
+	 * @param texture <code>Texture</code> to be rendered
+	 * @param program <code>Shader</code> program to use when rendering. Must have the following uniforms: uTexture, u_MVP
 	 */
-	public GameObject(float x, float y, float rot, float scale, Texture texture, Shader program) {
+	public GameObject(float x, float y, float rot, float scale, Renderable texture, Shader program) {
 		this.x = x;
 		this.y = y;
 		this.rot = rot;
@@ -49,7 +49,7 @@ public class GameObject {
 		program.set("u_Texture", slot);
 		Matrix4f proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
 		Matrix4f model = new Matrix4f().translate(x, y, 0).mul( // translate to position
-						 new Matrix4f().rotate(rot, 0.0f, 0.0f, 1.0f)).mul( // rotate about new center
+						 new Matrix4f().rotate(rot - texture.getOffsetRot(), 0.0f, 0.0f, 1.0f)).mul( // rotate about new center
 						 new Matrix4f().scale(scale, scale, 1.0f)).mul( // rescale to desired size
 						 new Matrix4f().translate(-texture.getOffsetX(), texture.getOffsetY(), 0)).mul( // translate to offset
 						 new Matrix4f().scale(texture.getWidth(), texture.getHeight(), 1.0f)); // scale to actual size
@@ -58,7 +58,7 @@ public class GameObject {
 		glDrawElements(GL_TRIANGLES, Rect.ibo.length, GL_UNSIGNED_INT, 0);
 	}
 
-	public Texture getTexture() {
+	public Renderable getTexture() {
 		return texture;
 	}
 

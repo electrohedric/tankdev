@@ -17,12 +17,14 @@ import org.lwjgl.system.MemoryStack;
 
 import entities.Entity;
 import entities.Player;
+import entities.Stain;
 import gl.Shader;
 import gl.Texture;
 import gl.VertexArray;
-import objects.GameObject;
 import objects.Rect;
+import util.Animation;
 import util.ClickListener;
+import util.Log;
 import util.Mouse;
 
 public class Game {
@@ -38,6 +40,7 @@ public class Game {
 	public static Player player;
 	
 	public static List<ClickListener> mouseClickCallback;
+	public static List<Animation> animationQueue;
 	
 	public static void main(String[] args) {
 		System.out.println("LWJGL version " + Version.getVersion());
@@ -127,6 +130,7 @@ public class Game {
 		Rect.init(); // using rectangle, so let's initialize it
 		entities = new ArrayList<>();
 		mouseClickCallback = new ArrayList<>();
+		animationQueue = new ArrayList<>();
 	}
 	
 	public static void checkError() {
@@ -162,23 +166,24 @@ public class Game {
 
 		Shader shader = new Shader("texture.shader", "u_Texture", "u_MVP");
 		
-		Texture playerTexture = new Texture("player/alive.png", 98, 107);
-		Texture ketchupTexture = new Texture("stains/ketchup/alive.png");
+		Texture playerTexture = new Texture("player/alive.png", 98, 107, 1);
+		Texture ketchupTexture = new Texture("stains/ketchup/alive.png", 33, 25, 1);
+		Animation ketchupAnimation = new Animation("stains/ketchup/frame<4>.png", 24, 1, 33, 25, 1);
 		
-		player = new Player(500, 500, 0, 0, 0, 0.4f, playerTexture, shader);
-		GameObject ketchup = new GameObject(128, 128, 0, 1.0f, ketchupTexture, shader);
-		entities.add(player);
+		player = new Player(500, 500, 1.0f, playerTexture, shader);
+		new Stain(100, 100, 1.0f, ketchupAnimation, shader);
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
 		long lastSystemTime = System.nanoTime();
 		
-		while (!glfwWindowShouldClose(window)) {
+		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 			
-			// RENDER
-			ketchup.x += 100.0f * delta; // 100 pixels / second
-			ketchup.render();
+			// UPDATE & RENDER
+			
+			for(int i = animationQueue.size() - 1; i >= 0; i--) // have to use regular old loop to avoid ConcurrentModificationException
+				animationQueue.get(i).update();
 			
 			for(Entity e : entities) {
 				e.update();
@@ -195,6 +200,7 @@ public class Game {
 			
 			long currentSystemTime = System.nanoTime();
 			delta = (currentSystemTime - lastSystemTime) / 1000000000.0f; // nanoseconds -> seconds
+			if(delta > 1.0f) delta = 0; // if delta is way too large (e.g. Game was paused) don't process a million frames, please
 			lastSystemTime = currentSystemTime;
 		}
 

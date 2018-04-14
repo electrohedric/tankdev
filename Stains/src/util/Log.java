@@ -7,17 +7,17 @@ public class Log {
 	private static int boopNum = 1;
 	private static LogLevel logLevel = LogLevel.ALL;
 	
-	public static void log(String message) {
+	public static void log(Object message) {
 		if(logLevel.level <= LogLevel.ALL.level)
 			System.out.println(message);
 	}
 	
-	public static void warn(String message) {
+	public static void warn(Object message) {
 		if(logLevel.level <= LogLevel.BAD.level)
 			System.out.println("WARNING > " + message);
 	}
 	
-	public static void err(String message) {
+	public static void err(Object message) {
 		if(logLevel.level <= LogLevel.FATAL.level)
 			System.err.println("ERROR > " + message);
 	}
@@ -34,7 +34,7 @@ public class Log {
 			StringBuilder spaces = new StringBuilder(history.length());
 			for(int i = 0; i < history.length(); i++)
 				spaces.append(' ');
-			System.out.print("\rCHANGE <> > " + value + spaces.toString());
+			System.out.print("\rCHANGE (+" + itersSinceChange + " iters) > " + value + spaces.toString());
 			history = value;
 			itersSinceChange = 0;
 		}
