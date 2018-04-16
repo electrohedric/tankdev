@@ -2,7 +2,7 @@ package util;
 
 public class Log {
 	
-	private static String history = "";
+	private static Object history = null;
 	private static int itersSinceChange = 0;
 	private static int boopNum = 1;
 	private static LogLevel logLevel = LogLevel.ALL;
@@ -27,13 +27,18 @@ public class Log {
 	 * no other logging occurs (e.g. logLevel == NONE) or confusion may incur.
 	 * @param value Value to detect change
 	 */
-	public static void change(String value) {
+	public static void change(Object value) {
 		if(value.equals(history)) {
 			itersSinceChange++;
 		} else {
-			StringBuilder spaces = new StringBuilder(history.length());
-			for(int i = 0; i < history.length(); i++)
-				spaces.append(' ');
+			StringBuilder spaces;
+			if(history == null)
+				spaces = new StringBuilder();
+			else {
+				spaces = new StringBuilder(history.toString().length());
+				for(int i = 0; i < history.toString().length(); i++)
+					spaces.append(' ');
+			}
 			System.out.print("\rCHANGE (+" + itersSinceChange + " iters) > " + value + spaces.toString());
 			history = value;
 			itersSinceChange = 0;

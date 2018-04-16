@@ -3,28 +3,28 @@ package staindev;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.stackPush;
 
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
 
+import constants.Mode;
+import editor.Wall;
 import entities.Entity;
 import entities.Player;
 import entities.Stain;
 import gl.Shader;
 import gl.Texture;
-import gl.VertexArray;
+import objects.Button;
+import objects.Line;
 import objects.Rect;
 import util.Animation;
 import util.ClickListener;
-import util.Log;
 import util.Mouse;
 
 public class Game {
@@ -32,15 +32,13 @@ public class Game {
 	// The window handle
 	public static long window;
 	private static String TITLE = "Stain Game";
-	public static int WIDTH = 800;
-	public static int HEIGHT = 600;
-	public static VertexArray vao; // VAO for the entire Game
+	public static int WIDTH;
+	public static int HEIGHT;
 	public static float delta = 0.0f;
-	public static List<Entity> entities;
-	public static Player player;
+	public static Mode mode = Mode.TITLE;
 	
-	public static List<ClickListener> mouseClickCallback;
-	public static List<Animation> animationQueue;
+	/** list of all GUI elements for the title screen that wish to be updated */
+	public static List<Button> titleGUIElements;
 	
 	public static void main(String[] args) {
 		System.out.println("LWJGL version " + Version.getVersion());
@@ -72,7 +70,10 @@ public class Game {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
 		// Create the window
-		window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, 0, 0);
+		GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		WIDTH = vidMode.width();
+		HEIGHT = vidMode.height();
+		window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, glfwGetPrimaryMonitor(), 0);
 		if (window == 0)
 			throw new RuntimeException("Failed to create the GLFW window");
 
@@ -86,32 +87,17 @@ public class Game {
 		});
 		glfwSetMouseButtonCallback(window, (window, button, action, mods) -> {
 			if(action == GLFW_PRESS)
-				for(ClickListener listener : mouseClickCallback)
+				for(ClickListener listener : ClickListener.getCallbackList(mode))
 					listener.handleClick(button);
 			else if(action == GLFW_RELEASE)
-				for(ClickListener listener : mouseClickCallback)
+				for(ClickListener listener : ClickListener.getCallbackList(mode))
 					listener.handleRelease(button);
 		});
 
-		// Get the thread stack and push a new frame
-		try (MemoryStack stack = stackPush()) {
-			IntBuffer pWidth = stack.mallocInt(1); // int*
-			IntBuffer pHeight = stack.mallocInt(1); // int*
-
-			// Get the window size passed to glfwCreateWindow
-			glfwGetWindowSize(window, pWidth, pHeight);
-
-			// Get the resolution of the primary monitor
-			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-			// Center the window
-			glfwSetWindowPos(window, (vidmode.width() - pWidth.get(0)) / 2, (vidmode.height() - pHeight.get(0)) / 2);
-		} // the stack frame is popped automatically
-
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
-		// Disable v-sync
-		glfwSwapInterval(0);
+		// Disable v-sync. Run as fast as possible NO. Enable VSync Plz. Lets not destroy our GPU
+		glfwSwapInterval(1);
 
 		// Make the window visible
 		glfwShowWindow(window);
@@ -126,11 +112,9 @@ public class Game {
 		GL.createCapabilities();
 		System.out.println("OpenGL version " + glGetString(GL_VERSION));
 		
-		vao = new VertexArray();
 		Rect.init(); // using rectangle, so let's initialize it
-		entities = new ArrayList<>();
-		mouseClickCallback = new ArrayList<>();
-		animationQueue = new ArrayList<>();
+		Line.init();
+		titleGUIElements = new ArrayList<>();
 	}
 	
 	public static void checkError() {
@@ -165,13 +149,25 @@ public class Game {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		Shader shader = new Shader("texture.shader", "u_Texture", "u_MVP");
+		Shader lineShader = new Shader("color.shader", "u_Color", "u_MVP");
+		
+		titleGUIElements.add(new Button(WIDTH * 0.5f, HEIGHT * 0.45f, 1.0f, "titlescreen/play_unpressed.png", "titlescreen/play_pressed.png", shader, Mode.TITLE, () ->  {
+			mode = Mode.PLAY;
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		}));
+		titleGUIElements.add(new Button(WIDTH * 0.5f, HEIGHT * 0.55f, 1.0f, "titlescreen/editor_unpressed.png", "titlescreen/editor_pressed.png", shader, Mode.TITLE, () ->  {
+			mode = Mode.EDITOR;
+			glClearColor(0.05f, 0.12f, 0.30f, 0.0f);  // blueprint color
+		}));
 		
 		Texture playerTexture = new Texture("player/alive.png", 98, 107, 1);
 		Texture ketchupTexture = new Texture("stains/ketchup/alive.png", 33, 25, 1);
 		Animation ketchupAnimation = new Animation("stains/ketchup/frame<4>.png", 24, 1, 33, 25, 1);
 		
-		player = new Player(500, 500, 1.0f, playerTexture, shader);
-		new Stain(100, 100, 1.0f, ketchupAnimation, shader);
+		new Player(500, 500, 0.4f, playerTexture, shader);
+		new Stain(100, 100, 0.8f, ketchupTexture, ketchupAnimation, shader);
+		
+		Wall wall = new Wall(100, 100, 400, 200, new Vector4f(1.0f, 1.0f, 1.0f, 0.0f), lineShader);
 
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
@@ -182,12 +178,35 @@ public class Game {
 			
 			// UPDATE & RENDER
 			
-			for(int i = animationQueue.size() - 1; i >= 0; i--) // have to use regular old loop to avoid ConcurrentModificationException
-				animationQueue.get(i).update();
-			
-			for(Entity e : entities) {
-				e.update();
-				e.render();
+			switch(mode) {
+			case EDITOR:
+				wall.render();
+				break;
+			case JANITOR:
+				
+				break;
+			case PAUSED:
+				
+				break;
+			case PLAY:
+				for(int i = Animation.queue.size() - 1; i >= 0; i--) // have to use regular old loop to avoid ConcurrentModificationException
+					Animation.queue.get(i).update();
+				
+				for(Entity e : Entity.list) {
+					e.update();
+					e.render();
+				}
+				
+				for(int i = Entity.list.size() - 1; i >= 0; i--)
+					if(Entity.list.get(i).isDead())
+						Entity.list.remove(i);
+				break;
+			case TITLE:
+				for(Button b : titleGUIElements) {
+					b.update();
+					b.render();
+				}
+				break;
 			}
 
 			glfwSwapBuffers(window); // swap the color buffers (tick)
@@ -206,4 +225,5 @@ public class Game {
 
 		shader.delete();
 	}
+	
 }

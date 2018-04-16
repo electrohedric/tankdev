@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL20.*;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -11,15 +12,22 @@ import java.util.List;
 import java.util.Map;
 
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import constants.Resources;
+import util.Log;
 
 public class Shader {
 	
 	private int id;
 	private Map<String, Integer> uniforms = new HashMap<String, Integer>();
 	
+	/**
+	 * A Shader program which compiles a given program into OpenGL and accepts uniforms
+	 * @param shaderName Path to shader from relative path res/shaders
+	 * @param uniforms List of uniforms to initialize immediately
+	 */
 	public Shader(String shaderName, String ... uniforms) {
 		List<String> source = null;
 		try {
@@ -68,7 +76,7 @@ public class Shader {
 	public void linkUniform(String name) {
 		int location = glGetUniformLocation(id, name);
 		if(location == -1)
-			System.out.println("WARNING: uniform " + name + " does not exist"); //TODO make Log class to do stuff like this
+			Log.warn("uniform " + name + " does not exist");
 		else
 			uniforms.put(name, location);
 	}
@@ -93,8 +101,14 @@ public class Shader {
 		glUniform1i(uniforms.get(uniform), a);
 	}
 	
+	private FloatBuffer buf2 = BufferUtils.createFloatBuffer(2);
+	public void set(String uniform, Vector4f a) {
+		glUniform4fv(uniforms.get(uniform), a.get(buf2));
+	}
+	
+	private FloatBuffer buf16 = BufferUtils.createFloatBuffer(16); // so we don't have to create a 16-float buffer every time we call this
 	public void set(String uniform, Matrix4f a) {
-		glUniformMatrix4fv(uniforms.get(uniform), false, a.get(BufferUtils.createFloatBuffer(16)));
+		glUniformMatrix4fv(uniforms.get(uniform), false, a.get(buf16));
 	}
 	
 	private int compileShader(String source, int type) {

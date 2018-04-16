@@ -1,20 +1,25 @@
 package entities;
 
+import static org.lwjgl.glfw.GLFW.*;
+
+import constants.Mode;
 import gl.Shader;
 import gl.Texture;
-import staindev.Game;
 import util.ClickListener;
 import util.Key;
 import util.Mouse;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 public class Player extends Entity implements ClickListener {
 	
+	/** The player. For now, there is only one player as multiplayer support not implemented */
+	public static Player instance;
+	
 	public Player(float x, float y, float scale, Texture texture, Shader program) {
-		super(x, y, 0.0f, 0.0f, 0.0f, scale, texture, program);
-		moveSpeed = 200;
-		Game.mouseClickCallback.add(this); // add this Player as a mouse click listener
+		super(x, y, 0.0f, 0.0f, 0.0f, scale, program);
+		this.moveSpeed = 200;
+		this.setActiveTexture(texture);
+		ClickListener.addToCallback(this, Mode.PLAY);
+		instance = this;
 	}
 
 	@Override
@@ -49,4 +54,5 @@ public class Player extends Entity implements ClickListener {
 	public void handleRelease(int button) {
 		
 	}
+	
 }

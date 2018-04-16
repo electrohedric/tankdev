@@ -8,10 +8,13 @@ import java.util.List;
 
 import constants.Resources;
 import gl.Texture;
-import objects.Renderable;
+import objects.Surface;
 import staindev.Game;
 
-public class Animation implements Renderable {
+public class Animation implements Surface {
+	
+	/** list of all animations that wish to be updated */
+	public static List<Animation> queue = new ArrayList<>();;
 	
 	private List<Texture> frames;
 	private int currentFrame;
@@ -75,14 +78,14 @@ public class Animation implements Renderable {
 	public void start() {
 		if(!running && canStart) {
 			running = true;
-			Game.animationQueue.add(this);
+			queue.add(this);
 		}
 	}
 	
 	public void stop() {
 		if(running) {
 			running = false;
-			Game.animationQueue.remove(this);
+			queue.remove(this);
 		}
 	}
 	
@@ -170,9 +173,12 @@ public class Animation implements Renderable {
 		this.currentFrame = currentFrame;
 	}
 
-
 	public int getNumFrames() {
 		return numFrames;
+	}
+	
+	public boolean isFinished() {
+		return runTimes >= maxRunTimes;
 	}
 	
 }

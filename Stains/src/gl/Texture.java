@@ -12,9 +12,9 @@ import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 
 import constants.Resources;
-import objects.Renderable;
+import objects.Surface;
 
-public class Texture implements Renderable {
+public class Texture implements Surface {
 	
 	private int id;
 	private int width;
@@ -22,6 +22,7 @@ public class Texture implements Renderable {
 	private float offsetX;
 	private float offsetY;
 	private float offsetRot;
+	
 	//private ByteBuffer data; // NOTE: we may want to retain this bytebuffer so we can sample pixels if we wish
 	
 	/**
@@ -37,6 +38,13 @@ public class Texture implements Renderable {
 		this.offsetX = centerX - (width / 2.0f);
 		this.offsetY = centerY - (height / 2.0f);
 		this.offsetRot = (float) (quarterTurns * Math.PI / 2);
+	}
+	
+	public Texture(String name, Anchor anchor) {
+		loadImageToGL(name);
+		this.offsetX = anchor.getX(width) - (width / 2.0f);
+		this.offsetY = anchor.getY(height) - (height / 2.0f);
+		this.offsetRot = 0;
 	}
 	
 	public Texture(String name) {
@@ -116,4 +124,39 @@ public class Texture implements Renderable {
 	public float getOffsetRot() {
 		return offsetRot;
 	}
+	
+	public enum Anchor {
+		TOP_LEFT, TOP_CENTER, TOP_RIGHT, MIDDLE_LEFT, CENTER, MIDDLE_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT;
+		
+		float getX(int w) {
+			switch(this) {
+			case BOTTOM_CENTER: return w / 2;
+			case BOTTOM_LEFT: return 0;
+			case BOTTOM_RIGHT: return w;
+			case CENTER: return w / 2;
+			case MIDDLE_LEFT: return 0;
+			case MIDDLE_RIGHT: return w;
+			case TOP_CENTER: return w / 2;
+			case TOP_LEFT: return 0;
+			case TOP_RIGHT: return w;
+			default: return 0;
+			}
+		}
+		
+		float getY(int h) {
+			switch(this) {
+			case BOTTOM_CENTER: return h;
+			case BOTTOM_LEFT: return h;
+			case BOTTOM_RIGHT: return h;
+			case CENTER: return h / 2;
+			case MIDDLE_LEFT: return h / 2;
+			case MIDDLE_RIGHT: return h / 2;
+			case TOP_CENTER: return 0;
+			case TOP_LEFT: return 0;
+			case TOP_RIGHT: return 0;
+			default: return 0;
+			}
+		}
+	}
+	
 }
