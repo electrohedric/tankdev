@@ -23,6 +23,9 @@ public class Shader {
 	private int id;
 	private Map<String, Integer> uniforms = new HashMap<String, Integer>();
 	
+	public static Shader texture = new Shader("texture.shader", "u_Texture", "u_MVP");
+	public static Shader color = new Shader("color.shader", "u_Color", "u_MVP");
+	
 	/**
 	 * A Shader program which compiles a given program into OpenGL and accepts uniforms
 	 * @param shaderName Path to shader from relative path res/shaders
@@ -101,9 +104,9 @@ public class Shader {
 		glUniform1i(uniforms.get(uniform), a);
 	}
 	
-	private FloatBuffer buf2 = BufferUtils.createFloatBuffer(2);
+	private FloatBuffer buf4 = BufferUtils.createFloatBuffer(4);
 	public void set(String uniform, Vector4f a) {
-		glUniform4fv(uniforms.get(uniform), a.get(buf2));
+		glUniform4fv(uniforms.get(uniform), a.get(buf4));
 	}
 	
 	private FloatBuffer buf16 = BufferUtils.createFloatBuffer(16); // so we don't have to create a 16-float buffer every time we call this

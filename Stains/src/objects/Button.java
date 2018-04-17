@@ -68,5 +68,9 @@ public class Button extends GameObject implements ClickListener {
 		if(mouseHovered)
 			callback.run();
 	}
+	
+	public boolean isMouseHovering() {
+		return mouseHovered;
+	}
 
 }

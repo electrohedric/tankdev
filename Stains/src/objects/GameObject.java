@@ -22,6 +22,11 @@ public class GameObject {
 	private Shader program;
 	private Surface activeTexture;
 	
+	// Preallocations
+	private Matrix4f proj = new Matrix4f();
+	private Matrix4f model = new Matrix4f();
+	private Matrix4f mvp = new Matrix4f();
+	
 	/**
 	 * Initializes a Game Object which is specifically only a textured quad
 	 * @param x Initial X
@@ -49,14 +54,20 @@ public class GameObject {
 			program.bind();
 			activeTexture.bind(slot);
 			Rect.bind(); // binds the VAO
-			program.set("u_Texture", slot);
-			Matrix4f proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
-			Matrix4f model = new Matrix4f().translate(x, y, 0).mul( // translate to position
-							 new Matrix4f().rotate(rot - activeTexture.getOffsetRot(), 0.0f, 0.0f, 1.0f)).mul( // rotate about new center
-							 new Matrix4f().scale(scale, scale, 1.0f)).mul( // rescale to desired size
-							 new Matrix4f().translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0)).mul( // translate to offset
-							 new Matrix4f().scale(activeTexture.getWidth(), activeTexture.getHeight(), 1.0f)); // scale to actual size
-			Matrix4f mvp = proj.mul(model); // M x V x P
+			program.set("u_Texture", slot);//TODO set this mess up like we did with walls: preallocation and stuff
+			proj.set(Game.proj);
+			model = model.
+					translation(x, y, 0).
+					rotate(rot - activeTexture.getOffsetRot(), 0.0f, 0.0f, 1.0f).
+					scale(scale, scale, 1.0f).
+					translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0).
+					scale(activeTexture.getWidth(), activeTexture.getHeight(), 1.0f);
+//			Matrix4f model = new Matrix4f().translate(x, y, 0).mul( // translate to position
+//							 new Matrix4f().rotate(rot - activeTexture.getOffsetRot(), 0.0f, 0.0f, 1.0f)).mul( // rotate about new center
+//							 new Matrix4f().scale(scale, scale, 1.0f)).mul( // rescale to desired size
+//							 new Matrix4f().translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0)).mul( // translate to offset
+//							 new Matrix4f().scale(activeTexture.getWidth(), activeTexture.getHeight(), 1.0f)); // scale to actual size
+			mvp = proj.mul(model); // M x V x P
 			program.set("u_MVP", mvp);
 			glDrawElements(GL_TRIANGLES, Rect.ibo.length, GL_UNSIGNED_INT, 0);
 		}

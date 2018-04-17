@@ -9,6 +9,7 @@ import util.ClickListener;
 import util.Key;
 import util.Mouse;
 
+/** Singleton which represents the only Player */
 public class Player extends Entity implements ClickListener {
 	
 	/** The player. For now, there is only one player as multiplayer support not implemented */
@@ -19,7 +20,7 @@ public class Player extends Entity implements ClickListener {
 		this.moveSpeed = 200;
 		this.setActiveTexture(texture);
 		ClickListener.addToCallback(this, Mode.PLAY);
-		instance = this;
+		instance = this; // if you feel like making a new Player, it will override the singleton instance
 	}
 
 	@Override

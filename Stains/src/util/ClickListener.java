@@ -14,6 +14,8 @@ public interface ClickListener {
 	public static List<ClickListener> playMouseClickCallback = new ArrayList<>();
 	/** list that contains all Objects that wish to receive TITLE mouse click input */
 	public static List<ClickListener> titleMouseClickCallback = new ArrayList<>();
+	/** list that contains all Objects that wish to receive TITLE mouse click input */
+	public static List<ClickListener> editorMouseClickCallback = new ArrayList<>();
 	
 	public static void addToCallback(ClickListener self, Mode receiveType) {
 		getCallbackList(receiveType).add(self);
@@ -21,8 +23,7 @@ public interface ClickListener {
 	
 	public static List<ClickListener> getCallbackList(Mode mode) {
 		switch(mode) {
-		case EDITOR:
-			break;
+		case EDITOR: return editorMouseClickCallback;
 		case JANITOR:
 			break;
 		case PAUSED:
@@ -30,7 +31,7 @@ public interface ClickListener {
 		case PLAY: return playMouseClickCallback;
 		case TITLE: return titleMouseClickCallback;
 		}
-		return null;
+		throw new IllegalArgumentException("The ClickListener doesn't support " + mode + " mode yet. Might want to add that.");
 	}
 	
 }

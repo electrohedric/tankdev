@@ -7,6 +7,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -14,6 +15,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import constants.Mode;
+import editor.EditorScreen;
 import editor.Wall;
 import entities.Entity;
 import entities.Player;
@@ -36,6 +38,7 @@ public class Game {
 	public static int HEIGHT;
 	public static float delta = 0.0f;
 	public static Mode mode = Mode.TITLE;
+	public static Matrix4f proj = new Matrix4f(); // can't instantiate until WIDTH and HEIGHT are set
 	
 	/** list of all GUI elements for the title screen that wish to be updated */
 	public static List<Button> titleGUIElements;
@@ -96,7 +99,7 @@ public class Game {
 
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
-		// Disable v-sync. Run as fast as possible NO. Enable VSync Plz. Lets not destroy our GPU
+		// Disable v-sync. Run as fast as possible NO. Enable VSync Plz. This is how you destroy your GPU and CPU in one fell swoop
 		glfwSwapInterval(1);
 
 		// Make the window visible
@@ -104,7 +107,7 @@ public class Game {
 		
 		// init buffers and things
 		
-		// This line is critical for LWJGL's interoperation with GLFW's
+		// This color is critical for LWJGL's interoperation with GLFW's
 		// OpenGL context, or any context that is managed externally.
 		// LWJGL detects the context that is current in the current thread,
 		// creates the GLCapabilities instance and makes the OpenGL
@@ -115,6 +118,7 @@ public class Game {
 		Rect.init(); // using rectangle, so let's initialize it
 		Line.init();
 		titleGUIElements = new ArrayList<>();
+		proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
 	}
 	
 	public static void checkError() {
@@ -147,31 +151,30 @@ public class Game {
 		
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
-		Shader shader = new Shader("texture.shader", "u_Texture", "u_MVP");
-		Shader lineShader = new Shader("color.shader", "u_Color", "u_MVP");
-		
-		titleGUIElements.add(new Button(WIDTH * 0.5f, HEIGHT * 0.45f, 1.0f, "titlescreen/play_unpressed.png", "titlescreen/play_pressed.png", shader, Mode.TITLE, () ->  {
+		titleGUIElements.add(new Button(WIDTH * 0.5f, HEIGHT * 0.45f, 1.0f, "titlescreen/play_unpressed.png", "titlescreen/play_pressed.png", Shader.texture, Mode.TITLE, () ->  {
 			mode = Mode.PLAY;
-			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // probably doesn't matter
 		}));
-		titleGUIElements.add(new Button(WIDTH * 0.5f, HEIGHT * 0.55f, 1.0f, "titlescreen/editor_unpressed.png", "titlescreen/editor_pressed.png", shader, Mode.TITLE, () ->  {
+		titleGUIElements.add(new Button(WIDTH * 0.5f, HEIGHT * 0.55f, 1.0f, "titlescreen/editor_unpressed.png", "titlescreen/editor_pressed.png", Shader.texture, Mode.TITLE, () ->  {
 			mode = Mode.EDITOR;
-			glClearColor(0.05f, 0.12f, 0.30f, 0.0f);  // blueprint color
+			glClearColor(0.03f, 0.07f, 0.23f, 0.0f);  // blueprint color
 		}));
 		
 		Texture playerTexture = new Texture("player/alive.png", 98, 107, 1);
 		Texture ketchupTexture = new Texture("stains/ketchup/alive.png", 33, 25, 1);
 		Animation ketchupAnimation = new Animation("stains/ketchup/frame<4>.png", 24, 1, 33, 25, 1);
 		
-		new Player(500, 500, 0.4f, playerTexture, shader);
-		new Stain(100, 100, 0.8f, ketchupTexture, ketchupAnimation, shader);
+		new Player(500, 500, 0.4f, playerTexture, Shader.texture);
+		new Stain(100, 100, 0.8f, ketchupTexture, ketchupAnimation, Shader.texture);
 		
-		Wall wall = new Wall(100, 100, 400, 200, new Vector4f(1.0f, 1.0f, 1.0f, 0.0f), lineShader);
-
+		new EditorScreen(); // create singleton
+		
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
-		long lastSystemTime = System.nanoTime();
+		double lastSystemTime = glfwGetTime();
 		
 		while(!glfwWindowShouldClose(window)) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
@@ -180,7 +183,8 @@ public class Game {
 			
 			switch(mode) {
 			case EDITOR:
-				wall.render();
+				EditorScreen.instance.update();
+				EditorScreen.instance.render();
 				break;
 			case JANITOR:
 				
@@ -208,22 +212,23 @@ public class Game {
 				}
 				break;
 			}
-
-			glfwSwapBuffers(window); // swap the color buffers (tick)
-
+			
+			glfwSwapBuffers(window); // swap the color buffers (tick) TODO implement fps system. Update every 1/120 seconds, render at vsync
+			
+			Mouse.getUpdate();
 			// Poll for window events. The key callback above will only be
 			// invoked during this call.
 			glfwPollEvents();
-			Mouse.getUpdate();
 			checkError();
 			
-			long currentSystemTime = System.nanoTime();
-			delta = (currentSystemTime - lastSystemTime) / 1000000000.0f; // nanoseconds -> seconds
+			double currentSystemTime = glfwGetTime();
+			delta = (float) (currentSystemTime - lastSystemTime);
 			if(delta > 1.0f) delta = 0; // if delta is way too large (e.g. Game was paused) don't process a million frames, please
 			lastSystemTime = currentSystemTime;
 		}
 
-		shader.delete();
+		Shader.texture.delete();
+		Shader.color.delete();
 	}
 	
 }
