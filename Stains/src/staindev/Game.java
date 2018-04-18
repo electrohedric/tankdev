@@ -8,15 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Matrix4f;
-import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
+import audio.Sounds;
 import constants.Mode;
 import editor.EditorScreen;
-import editor.Wall;
 import entities.Entity;
 import entities.Player;
 import entities.Stain;
@@ -115,6 +114,7 @@ public class Game {
 		GL.createCapabilities();
 		System.out.println("OpenGL version " + glGetString(GL_VERSION));
 		
+		Sounds.init();
 		Rect.init(); // using rectangle, so let's initialize it
 		Line.init();
 		titleGUIElements = new ArrayList<>();
@@ -229,6 +229,7 @@ public class Game {
 
 		Shader.texture.delete();
 		Shader.color.delete();
+		Sounds.destroy();
 	}
 	
 }

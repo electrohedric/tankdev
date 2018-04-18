@@ -2,6 +2,7 @@ package entities;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import audio.Sounds;
 import constants.Mode;
 import gl.Shader;
 import gl.Texture;
@@ -48,7 +49,7 @@ public class Player extends Entity implements ClickListener {
 
 	@Override
 	public void handleClick(int button) {
-		
+		Sounds.SPRAY.forcePlay(x, y, x, y);
 	}
 
 	@Override
