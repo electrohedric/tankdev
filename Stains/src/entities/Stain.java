@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import constants.Mode;
-import gl.Shader;
 import gl.Texture;
 import util.Animation;
 import util.ClickListener;
@@ -18,8 +17,8 @@ public class Stain extends Entity implements ClickListener {
 	Texture aliveTexture;
 	Animation deathAnimation;
 	
-	public Stain(float x, float y, float scale, Texture aliveTexture, Animation deathAnimation, Shader program) {
-		super(x, y, 0.0f, 0.0f, 0.0f, scale, program);
+	public Stain(float x, float y, float scale, Texture aliveTexture, Animation deathAnimation) {
+		super(x, y, 0.0f, 0.0f, 0.0f, scale);
 		this.moveSpeed = 20.0f; // pixels / second
 		this.aliveTexture = aliveTexture;
 		this.deathAnimation = deathAnimation;

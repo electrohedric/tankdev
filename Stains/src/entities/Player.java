@@ -2,9 +2,8 @@ package entities;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-import audio.Sounds;
 import constants.Mode;
-import gl.Shader;
+import constants.Sounds;
 import gl.Texture;
 import util.ClickListener;
 import util.Key;
@@ -16,8 +15,8 @@ public class Player extends Entity implements ClickListener {
 	/** The player. For now, there is only one player as multiplayer support not implemented */
 	public static Player instance;
 	
-	public Player(float x, float y, float scale, Texture texture, Shader program) {
-		super(x, y, 0.0f, 0.0f, 0.0f, scale, program);
+	public Player(float x, float y, float scale, Texture texture) {
+		super(x, y, 0, 0, 0, scale);
 		this.moveSpeed = 200;
 		this.setActiveTexture(texture);
 		ClickListener.addToCallback(this, Mode.PLAY);
@@ -49,7 +48,7 @@ public class Player extends Entity implements ClickListener {
 
 	@Override
 	public void handleClick(int button) {
-		Sounds.SPRAY.forcePlay(x, y, x, y);
+		Sounds.SPRAY.forcePlay();
 	}
 
 	@Override

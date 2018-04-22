@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 
 import constants.Resources;
 import objects.Surface;
+import util.Log;
 
 public class Texture implements Surface {
 	
@@ -59,7 +60,7 @@ public class Texture implements Surface {
 		try {
 			image = ImageIO.read(new File(Resources.TEXTURES_PATH + name));
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.err("Cannot open file: " + Resources.TEXTURES_PATH + name);
 		}
 		
 		width = image.getWidth();

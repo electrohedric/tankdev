@@ -23,9 +23,6 @@ public class Shader {
 	private int id;
 	private Map<String, Integer> uniforms = new HashMap<String, Integer>();
 	
-	public static Shader texture = new Shader("texture.shader", "u_Texture", "u_MVP");
-	public static Shader color = new Shader("color.shader", "u_Color", "u_MVP");
-	
 	/**
 	 * A Shader program which compiles a given program into OpenGL and accepts uniforms
 	 * @param shaderName Path to shader from relative path res/shaders

@@ -4,6 +4,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 import org.joml.Matrix4f;
 
+import constants.Shaders;
 import gl.Shader;
 import staindev.Game;
 
@@ -35,13 +36,13 @@ public class GameObject {
 	 * @param scale Initial scale from actual size
 	 * @param program {@link Shader} program to use when rendering. Must have the following uniforms: uTexture, u_MVP
 	 */
-	public GameObject(float x, float y, float rot, float scale, Shader program) {
+	public GameObject(float x, float y, float rot, float scale) {
 		this.x = x;
 		this.y = y;
 		this.rot = rot;
 		this.scale = scale;
 		this.slot = 0;
-		this.program = program;
+		this.program = Shaders.TEXTURE;
 		this.activeTexture = null;
 	}
 	

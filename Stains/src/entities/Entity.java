@@ -3,7 +3,6 @@ package entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import gl.Shader;
 import objects.GameObject;
 import staindev.Game;
 
@@ -32,8 +31,8 @@ public abstract class Entity extends GameObject {
 	 * @param texture <code>Texture</code> to be rendered
 	 * @param program <code>Shader</code> program to use when rendering. Must have the following uniforms: uTexture, u_MVP
 	 */
-	public Entity(float x, float y, float vx, float vy, float rot, float scale, Shader program) {
-		super(x, y, rot, scale, program);
+	public Entity(float x, float y, float vx, float vy, float rot, float scale) {
+		super(x, y, rot, scale);
 //		this.vx = vx;
 //		this.vy = vy;
 		list.add(this);
