@@ -15,6 +15,7 @@ public class Sound {
 	
 	private int buffer;
 	private int[] source;
+	public static int musicSource = alGenSources();
 	
 	/**
 	 * Creates a new Sound which can be played with multiple players
@@ -101,7 +102,29 @@ public class Sound {
 		return play(true);
 	}
 	
-	public void playBuffer(int src) {
+	/**
+	 * Adds a Sound to the music queue which will begin playing seamlessly as soon as the last sound has finished
+	 * @param nextSound the loop to play after this intro sound
+	 */
+	public void addToQueue() {
+		alSourceQueueBuffers(musicSource, buffer);
+	}
+	
+	/**
+	 * Clears the queue for new use
+	 * @return number of sources that were cleared
+	 */
+	public static int clearQueue() {
+		int num = alGetSourcei(musicSource, AL_BUFFERS_PROCESSED);
+		alSourceUnqueueBuffers(musicSource);
+		return num;
+	}
+	
+	public static void startMusic() {
+		playBuffer(musicSource);
+	}
+	
+	public static void playBuffer(int src) {
 		alSourcePlay(src);
 	}
 	
@@ -121,6 +144,10 @@ public class Sound {
 //		for(int src : source)
 //			if(!isStopped(src))
 //				alSourceStop(src);
+	}
+	
+	public void checkError() {
+		Log.log(alGetError());
 	}
 	
 	/** 
@@ -143,6 +170,11 @@ public class Sound {
 	public boolean isStopped(int src) {
 		int srcstate = alGetSourcei(src, AL_SOURCE_STATE);
 		return srcstate == AL_INITIAL || srcstate == AL_STOPPED;
+	}
+	
+	public void setVolume(float volume) {
+		for(int src : source)
+			alSourcef(src, AL_GAIN, volume);
 	}
 	
 }

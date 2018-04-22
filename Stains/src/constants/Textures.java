@@ -28,8 +28,11 @@ public class Textures {
 	
 	public static class Title {
 		public static Texture BG = new Texture("guis/title/bg.png");
+		public static Texture CONTINUE = loadButton("guis/title/continue.png");
 		public static Texture NEWGAME = loadButton("guis/title/newgame.png");
+		public static Texture SETTINGS = loadButton("guis/title/settings.png");
 		public static Texture EDITOR = loadButton("guis/title/editor.png");
+		public static Texture QUIT = loadButton("guis/title/quit.png");
 	}
 	
 	public static class Editor {
