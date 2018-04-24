@@ -21,6 +21,7 @@ import gl.Renderer;
 import guis.EditorScreen;
 import guis.TitleScreen;
 import objects.Line;
+import objects.Point;
 import objects.Rect;
 import util.Animation;
 import util.ClickListener;
@@ -34,7 +35,7 @@ public class Game {
 	public static int WIDTH;
 	public static int HEIGHT;
 	public static float delta = 0.0f;
-	public static Mode mode = Mode.TITLE;
+	public static Mode mode = Mode.PAUSED;
 	public static Matrix4f proj = new Matrix4f(); // can't instantiate until WIDTH and HEIGHT are set
 	
 	public static void main(String[] args) {
@@ -112,6 +113,7 @@ public class Game {
 		Sounds.init();
 		Rect.init(); // using rectangle, so let's initialize it
 		Line.init();
+		Point.init();
 		proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
 	}
 	
@@ -147,6 +149,8 @@ public class Game {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_LINE_SMOOTH);
 		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_POINT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 		
 		// TODO buttons size should be relative to the screen width and height, not the button so buttons can be displayed the same on all screens
 		
@@ -154,9 +158,7 @@ public class Game {
 		new Player(500, 500, 0.4f, Textures.PLAYER);
 		new Stain(100, 100, 0.8f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH);
 		
-		 // create singletons
-		new TitleScreen();
-		new EditorScreen();
+		TitleScreen.getInstance().switchTo();
 		
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
@@ -169,8 +171,8 @@ public class Game {
 			
 			switch(mode) {
 			case EDITOR:
-				EditorScreen.instance.update();
-				EditorScreen.instance.render();
+				EditorScreen.getInstance().update();
+				EditorScreen.getInstance().render();
 				break;
 			case JANITOR:
 				
@@ -179,7 +181,7 @@ public class Game {
 				
 				break;
 			case PLAY:
-				for(int i = Animation.queue.size() - 1; i >= 0; i--) // have to use regular old loop to avoid ConcurrentModificationException
+				for(int i = Animation.queue.size() - 1; i >= 0; i--)
 					Animation.queue.get(i).update();
 				
 				for(Entity e : Entity.list) {
@@ -187,7 +189,7 @@ public class Game {
 					e.render();
 				}
 				
-				for(int i = Entity.list.size() - 1; i >= 0; i--)
+				for(int i = Entity.list.size() - 1; i >= 0; i--) // avoid Concurrent Modification
 					if(Entity.list.get(i).isDead())
 						Entity.list.remove(i);
 				break;

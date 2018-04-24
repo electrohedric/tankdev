@@ -3,6 +3,7 @@ package guis;
 import static org.lwjgl.opengl.GL11.*;
 
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector4f;
 
 import constants.Shaders;
@@ -15,6 +16,8 @@ public class Wall {
 	
 	private float x;
 	private float y;
+	private float x2;
+	private float y2;
 	private float length;
 	private float width;
 	private float rot;
@@ -28,19 +31,19 @@ public class Wall {
 	private Matrix4f mvp = new Matrix4f();
 	
 	/**
-	 * Creates a Wall between 2 points
+	 * Creates a Line between 2 points
 	 * @param x1 X of point 1
 	 * @param y1 Y of point 1
 	 * @param x2 X of point 2
 	 * @param y2 Y of point 2
-	 * @param color Color to color the color
-	 * @param program {@link Shader} to render with
+	 * @param color Color to color the line in normalized RGBA
 	 */
-	public Wall(float x1, float y1, float x2, float y2, float width, Vector4f color) {
+	public Wall(float x1, float y1, float x2, float y2, float width, int r, int g, int b, int a) {
 		setStartPoint(x1, y1);
 		setEndPoint(x2, y2);
 		this.width = width;
-		this.color = color;
+		this.color = new Vector4f();
+		setColor(r, g, b, a);
 		this.program = Shaders.COLOR;
 	}
 
@@ -63,8 +66,31 @@ public class Wall {
 	}
 	
 	public void setEndPoint(float x2, float y2) {
+		this.x2 = x2;
+		this.y2 = y2;
 		this.length = (float) Math.sqrt(Math.pow(y2 - y, 2) + Math.pow(x2 - x, 2));  // distance formala between 2 points
 		this.rot = (float) Math.atan2(y2 - y, x2 - x);
+	}
+	
+	public void setColor(int r, int g, int b, int a) {
+		color.set(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+	}
+	
+	/**
+	 * Method to determine the best guess for which line a point is hovering over
+	 * @param px Point x
+	 * @param py Point y
+	 * @return percent error as a decimal of "closeness" of the point to the line
+	 */
+	public float intersectsPoint(float px, float py) {
+		Vector2f vec1 = new Vector2f(px - x, py - y);
+		Vector2f vec2 = new Vector2f(px - x2, py - y2);
+		float vecLen = vec1.length() + vec2.length();
+		return Math.abs(length - vecLen) / Math.max((2000 - length), 500);
+	}
+	
+	public String toString() {
+		return String.format("(%s, %s), rot=%s, len=%s)", (int)x, (int)y, (int)Math.toDegrees(rot), (int)length);
 	}
 	
 }

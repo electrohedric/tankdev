@@ -24,7 +24,7 @@ public class Sound {
 	 * @param loop
 	 * @param maxPlayers
 	 */
-	public Sound(String path, float volume, boolean loop, int maxPlayers) {
+	public Sound(String path, float volume, boolean loop, int maxPlayers) { // TODO make Music class in here which does all that looping stuff, "Sound"s don't loop
 		IntBuffer channelsBuf = BufferUtils.createIntBuffer(1);
 		IntBuffer rateBuf = BufferUtils.createIntBuffer(1);
 		ShortBuffer audioBuf = STBVorbis.stb_vorbis_decode_filename(Resources.SOUNDS_PATH + path, channelsBuf, rateBuf);
@@ -148,6 +148,12 @@ public class Sound {
 	
 	public void checkError() {
 		Log.log(alGetError());
+	}
+	
+	public static void continueLooping(Sound loop) {
+		int numCleared = Sound.clearQueue();
+		for(int i = 0; i < numCleared; i++)
+			loop.addToQueue();
 	}
 	
 	/** 

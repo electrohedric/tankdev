@@ -50,7 +50,7 @@ public class GameObject {
 	 * Renders the <code>activeTexture</code> to the screen using its properties and this <code>GameObject</code>'s position.
 	 * <code>null</code> is a valid <code>activeTexture</code> which renders nothing.
 	 * */
-	public void render() { // TODO optimize this so we aren't creating a crap load of matrices every frame. hint: look at Wall
+	public void render() { // TODO optimize this so we aren't creating a crap load of matrices every frame. hint: look at Line
 		if(activeTexture != null) {
 			program.bind();
 			activeTexture.bind(slot);

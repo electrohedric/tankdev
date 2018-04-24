@@ -5,7 +5,7 @@ import java.util.List;
 
 import gl.Texture;
 
-public class Gui {
+public abstract class Gui {
 
 	Screen background;
 	List<Button> elements; // TODO should be an element list for elements, not just buttons
@@ -25,5 +25,7 @@ public class Gui {
 		for(Button b : elements)
 			b.render();
 	}
+	
+	public abstract void switchTo();
 	
 }

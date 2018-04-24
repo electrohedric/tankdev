@@ -24,26 +24,35 @@ public class TitleScreen extends Gui {
 			// TODO figure it out
 		}));
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.20f, 1.0f, Textures.Title.EDITOR, Textures.Title.EDITOR, Mode.TITLE, () ->  {
-			Game.mode = Mode.EDITOR;
+			EditorScreen.getInstance().switchTo(); //TODO wash out music with a swiping sound and change to editor track
 		}));
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.10f, 1.0f, Textures.Title.QUIT , Textures.Title.QUIT, Mode.TITLE, () ->  {
 			glfwSetWindowShouldClose(Game.window, true);
 		}));
 		
-		Sounds.TITLE_INTRO.addToQueue();
-		Sounds.TITLE_LOOP.addToQueue();
-		Sound.startMusic();
-		
 		//Sounds.TITLE_LOOP.play();
 		instance = this;
+	}
+	
+	public static TitleScreen getInstance() {
+		if(instance != null)
+			return instance;
+		else
+			return new TitleScreen();
 	}
 	
 	@Override
 	public void update() {
 		super.update(); // TODO make moving hand
-		int numCleared = Sound.clearQueue(); // clear played music TODO maybe abstract this into Sound class
-		for(int i = 0; i < numCleared; i++)
-			Sounds.TITLE_LOOP.addToQueue();
+		Sound.continueLooping(Sounds.TITLE_LOOP);
+	}
+
+	@Override
+	public void switchTo() {
+		Game.mode = Mode.TITLE;
+		Sounds.TITLE_INTRO.addToQueue();
+		Sounds.TITLE_LOOP.addToQueue();
+		Sound.startMusic();
 	}
 
 }
