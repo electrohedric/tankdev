@@ -3,7 +3,11 @@ package guis;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.glfw.GLFW.*;
+
 import gl.Texture;
+import guis.elements.Button;
+import staindev.Game;
 
 public abstract class Gui {
 
@@ -24,6 +28,10 @@ public abstract class Gui {
 		background.render();
 		for(Button b : elements)
 			b.render();
+	}
+	
+	void setMousePointer(long cursor) {
+		glfwSetCursor(Game.window, cursor);
 	}
 	
 	public abstract void switchTo();

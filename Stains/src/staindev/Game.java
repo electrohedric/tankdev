@@ -25,6 +25,7 @@ import objects.Point;
 import objects.Rect;
 import util.Animation;
 import util.ClickListener;
+import util.Cursors;
 import util.Mouse;
 
 public class Game {
@@ -100,7 +101,7 @@ public class Game {
 		// Make the window visible
 		glfwShowWindow(window);
 		
-		// init buffers and things
+		// init buffers and things after all our contexts have been created
 		
 		// This color is critical for LWJGL's interoperation with GLFW's
 		// OpenGL context, or any context that is managed externally.
@@ -114,6 +115,7 @@ public class Game {
 		Rect.init(); // using rectangle, so let's initialize it
 		Line.init();
 		Point.init();
+		Cursors.init();
 		proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
 	}
 	
@@ -165,46 +167,11 @@ public class Game {
 		double lastSystemTime = glfwGetTime();
 		
 		while(!glfwWindowShouldClose(window)) {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+			updateGame();
+			renderGame();
 			
-			// UPDATE & RENDER TODO [Dependency: split up updating and rendering] implement fps system. Update every 1/120 seconds, render at vsync
+			glfwSwapBuffers(window); // swap the color buffers (tick) TODO implement fps system. Update every 1/120 seconds, render at vsync
 			
-			switch(mode) {
-			case EDITOR:
-				EditorScreen.getInstance().update();
-				EditorScreen.getInstance().render();
-				break;
-			case JANITOR:
-				
-				break;
-			case PAUSED:
-				
-				break;
-			case PLAY:
-				for(int i = Animation.queue.size() - 1; i >= 0; i--)
-					Animation.queue.get(i).update();
-				
-				for(Entity e : Entity.list) {
-					e.update();
-					e.render();
-				}
-				
-				for(int i = Entity.list.size() - 1; i >= 0; i--) // avoid Concurrent Modification
-					if(Entity.list.get(i).isDead())
-						Entity.list.remove(i);
-				break;
-			case TITLE:
-				TitleScreen.instance.update();
-				TitleScreen.instance.render();
-				break;
-			}
-			
-			glfwSwapBuffers(window); // swap the color buffers (tick)
-			
-			Mouse.getUpdate();
-			// Poll for window events. The key callback above will only be
-			// invoked during this call.
-			glfwPollEvents();
 			checkError();
 			
 			double currentSystemTime = glfwGetTime();
@@ -216,6 +183,60 @@ public class Game {
 		Textures.destroy();
 		Shaders.destroy();
 		Sounds.destroy();
+	}
+	
+	public static void updateGame() {
+		Mouse.getUpdate(); // poll mouse movement
+		glfwPollEvents(); // poll keypress/click events
+		
+		switch(mode) {
+		case EDITOR:
+			EditorScreen.getInstance().update();
+			break;
+		case JANITOR:
+			
+			break;
+		case PAUSED:
+			
+			break;
+		case PLAY:
+			for(int i = Animation.queue.size() - 1; i >= 0; i--)
+				Animation.queue.get(i).update();
+			
+			for(Entity e : Entity.list)
+				e.update();
+			
+			for(int i = Entity.list.size() - 1; i >= 0; i--) // avoid Concurrent Modification
+				if(Entity.list.get(i).isDead())
+					Entity.list.remove(i);
+			break;
+		case TITLE:
+			TitleScreen.instance.update();
+			break;
+		}
+	}
+	
+	public static void renderGame() {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+		
+		switch(mode) {
+		case EDITOR:
+			EditorScreen.getInstance().render();
+			break;
+		case JANITOR:
+			
+			break;
+		case PAUSED:
+			
+			break;
+		case PLAY:
+			for(Entity e : Entity.list)
+				e.render();
+			break;
+		case TITLE:
+			TitleScreen.instance.render();
+			break;
+		}
 	}
 	
 }

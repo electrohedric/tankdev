@@ -37,9 +37,8 @@ public class Textures {
 	
 	public static class Editor {
 		public static Texture BG = new Texture("guis/editor/bg.png");
-		public static Texture LINEOFF = loadButton("guis/editor/line_off.png");
-		public static Texture LINEON = loadButton("guis/editor/line_on.png");
-		public static Texture FILLETOFF = loadButton("guis/editor/fillet_off.png");
-		public static Texture FILLETON = loadButton("guis/editor/fillet_on.png");
+		public static Texture LINE = loadButton("guis/editor/line.png");
+		public static Texture FILLET = loadButton("guis/editor/fillet.png");
+		public static Texture REMOVE = loadButton("guis/editor/remove.png");
 	}
 }

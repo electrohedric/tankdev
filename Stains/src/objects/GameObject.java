@@ -18,6 +18,8 @@ public class GameObject {
 	/** In radians **/
 	public float rot;
 	public float scale;
+	/** changes brightness of texture. 0 is normal. 1 is fully white. -1 is fully black */
+	public float brightScale;
 	
 	private int slot;
 	private Shader program;
@@ -34,13 +36,14 @@ public class GameObject {
 	 * @param y Initial Y
 	 * @param rot Initial rotation, in radians
 	 * @param scale Initial scale from actual size
-	 * @param program {@link Shader} program to use when rendering. Must have the following uniforms: uTexture, u_MVP
+	 * @param program {@link Shader#Shader(String, String...) Shader} program to use when rendering. Must have the following uniforms: u_Texture, u_MVP, u_brightScale
 	 */
 	public GameObject(float x, float y, float rot, float scale) {
 		this.x = x;
 		this.y = y;
 		this.rot = rot;
 		this.scale = scale;
+		this.brightScale = 0.0f; // normal color
 		this.slot = 0;
 		this.program = Shaders.TEXTURE;
 		this.activeTexture = null;
@@ -50,12 +53,11 @@ public class GameObject {
 	 * Renders the <code>activeTexture</code> to the screen using its properties and this <code>GameObject</code>'s position.
 	 * <code>null</code> is a valid <code>activeTexture</code> which renders nothing.
 	 * */
-	public void render() { // TODO optimize this so we aren't creating a crap load of matrices every frame. hint: look at Line
+	public void render() {
 		if(activeTexture != null) {
 			program.bind();
 			activeTexture.bind(slot);
 			Rect.bind(); // binds the VAO
-			program.set("u_Texture", slot);//TODO set this mess up like we did with walls: preallocation and stuff
 			proj.set(Game.proj);
 			model = model.
 					translation(x, y, 0).
@@ -63,13 +65,13 @@ public class GameObject {
 					scale(scale, scale, 1.0f).
 					translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0).
 					scale(activeTexture.getWidth(), activeTexture.getHeight(), 1.0f);
-//			Matrix4f model = new Matrix4f().translate(x, y, 0).mul( // translate to position
-//							 new Matrix4f().rotate(rot - activeTexture.getOffsetRot(), 0.0f, 0.0f, 1.0f)).mul( // rotate about new center
-//							 new Matrix4f().scale(scale, scale, 1.0f)).mul( // rescale to desired size
-//							 new Matrix4f().translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0)).mul( // translate to offset
-//							 new Matrix4f().scale(activeTexture.getWidth(), activeTexture.getHeight(), 1.0f)); // scale to actual size
 			mvp = proj.mul(model); // M x V x P
+			
+			//uniforms
+			program.set("u_Texture", slot);
 			program.set("u_MVP", mvp);
+			program.set("u_BrightScale", brightScale);
+			
 			glDrawElements(GL_TRIANGLES, Rect.ibo.length, GL_UNSIGNED_INT, 0);
 		}
 	}

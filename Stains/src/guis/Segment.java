@@ -12,7 +12,7 @@ import objects.Line;
 import staindev.Game;
 
 //TODO make this implement a Renderable class which has the matrices, program, slot, x, and y set up, and render() abstract method
-public class Wall {
+public class Segment {
 	
 	private float x;
 	private float y;
@@ -21,6 +21,7 @@ public class Wall {
 	private float length;
 	private float width;
 	private float rot;
+	private Vector4f defaultColor;
 	private Vector4f color;
 	
 	private Shader program;
@@ -38,12 +39,13 @@ public class Wall {
 	 * @param y2 Y of point 2
 	 * @param color Color to color the line in normalized RGBA
 	 */
-	public Wall(float x1, float y1, float x2, float y2, float width, int r, int g, int b, int a) {
+	public Segment(float x1, float y1, float x2, float y2, float width, int r, int g, int b, int a) {
 		setStartPoint(x1, y1);
 		setEndPoint(x2, y2);
 		this.width = width;
 		this.color = new Vector4f();
 		setColor(r, g, b, a);
+		this.defaultColor = new Vector4f(color); // duplicate color
 		this.program = Shaders.COLOR;
 	}
 
@@ -89,8 +91,8 @@ public class Wall {
 		return Math.abs(length - vecLen) / Math.max((2000 - length), 500);
 	}
 	
-	public String toString() {
-		return String.format("(%s, %s), rot=%s, len=%s)", (int)x, (int)y, (int)Math.toDegrees(rot), (int)length);
+	public void resetColor() {
+		color.set(defaultColor);
 	}
 	
 }
