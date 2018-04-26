@@ -13,18 +13,16 @@ import constants.Sounds;
 
 public class Sound {
 	
-	private int buffer;
+	int buffer;
 	private int[] source;
-	public static int musicSource = alGenSources();
 	
 	/**
 	 * Creates a new Sound which can be played with multiple players
 	 * @param path
 	 * @param volume
-	 * @param loop
 	 * @param maxPlayers
 	 */
-	public Sound(String path, float volume, boolean loop, int maxPlayers) { // TODO make Music class in here which does all that looping stuff, "Sound"s don't loop
+	public Sound(String path, float volume, int maxPlayers) {
 		IntBuffer channelsBuf = BufferUtils.createIntBuffer(1);
 		IntBuffer rateBuf = BufferUtils.createIntBuffer(1);
 		ShortBuffer audioBuf = STBVorbis.stb_vorbis_decode_filename(Resources.SOUNDS_PATH + path, channelsBuf, rateBuf);
@@ -42,9 +40,7 @@ public class Sound {
 		alBufferData(buffer, format, audioBuf, rate);
 		Sounds.buffers.add(buffer);
 		
-		if(loop && maxPlayers > 1)
-			Log.warn("There really shouldn't be more than one player on a loop: " + path);
-		else if(maxPlayers < 0)
+		if(maxPlayers < 0)
 			throw new IllegalArgumentException("There must be at least one player: " + path);
 		
 		this.source = new int[maxPlayers];
@@ -53,7 +49,6 @@ public class Sound {
 		// specifically for more than one souce and no looping, but hey it works for everything.
 		// it wouldn't make much sense to have the same sound playing on a loop and one not, so this works out
 		for(int src : source) {
-			alSourcei(src, AL_LOOPING, loop ? AL_TRUE : AL_FALSE);
 			alSourcef(src, AL_GAIN, volume);
 			alSourcef(src, AL_PITCH, 1.0f);
 			alSource3f(src, AL_POSITION, 0, 0, 0);
@@ -102,28 +97,6 @@ public class Sound {
 		return play(true);
 	}
 	
-	/**
-	 * Adds a Sound to the music queue which will begin playing seamlessly as soon as the last sound has finished
-	 * @param nextSound the loop to play after this intro sound
-	 */
-	public void addToQueue() {
-		alSourceQueueBuffers(musicSource, buffer);
-	}
-	
-	/**
-	 * Clears the queue for new use
-	 * @return number of sources that were cleared
-	 */
-	public static int clearQueue() {
-		int num = alGetSourcei(musicSource, AL_BUFFERS_PROCESSED);
-		alSourceUnqueueBuffers(musicSource);
-		return num;
-	}
-	
-	public static void startMusic() {
-		playBuffer(musicSource);
-	}
-	
 	public static void playBuffer(int src) {
 		alSourcePlay(src);
 	}
@@ -148,12 +121,6 @@ public class Sound {
 	
 	public void checkError() {
 		Log.log(alGetError());
-	}
-	
-	public static void continueLooping(Sound loop) {
-		int numCleared = Sound.clearQueue();
-		for(int i = 0; i < numCleared; i++)
-			loop.addToQueue();
 	}
 	
 	/** 

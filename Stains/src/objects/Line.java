@@ -38,4 +38,10 @@ public class Line {
 		ibo.unbind();
 	}
 	
+	public static void destroy() {
+		vao.delete();
+		vbo.delete();
+		ibo.delete();
+	}
+	
 }

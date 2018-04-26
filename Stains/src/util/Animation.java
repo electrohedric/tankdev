@@ -1,7 +1,5 @@
 package util;
 
-import static org.lwjgl.opengl.GL11.*;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +9,7 @@ import gl.Texture;
 import objects.Surface;
 import staindev.Game;
 
-public class Animation implements Surface {
+public class Animation extends Surface {
 	
 	/** list of all animations that wish to be updated */
 	public static List<Animation> queue = new ArrayList<>();;
@@ -42,6 +40,7 @@ public class Animation implements Surface {
 	 * @see Texture#Texture(String, float, float, float) Texture
 	 */
 	public Animation(String pathFormat, int fps, int loopTimes, float centerX, float centerY, float quarterTurns) {
+		super();
 		this.frames = new ArrayList<>();
 		this.currentFrame = 0;
 		if(fps > 0) {
@@ -121,11 +120,6 @@ public class Animation implements Surface {
 		frames.get(currentFrame).bind(slot);
 	}
 	
-	@Override
-	public void unbind() {
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
 	@Override
 	public void delete() {
 		for(Texture t : frames)

@@ -27,6 +27,7 @@ import util.Animation;
 import util.ClickListener;
 import util.Cursors;
 import util.Mouse;
+import util.Music;
 
 public class Game {
 
@@ -111,11 +112,14 @@ public class Game {
 		GL.createCapabilities();
 		System.out.println("OpenGL version " + glGetString(GL_VERSION));
 		
+		Textures.init();
+		Shaders.init();
 		Sounds.init();
-		Rect.init(); // using rectangle, so let's initialize it
+		Music.init();
+		Cursors.init();
+		Rect.init();
 		Line.init();
 		Point.init();
-		Cursors.init();
 		proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
 	}
 	
@@ -183,11 +187,16 @@ public class Game {
 		Textures.destroy();
 		Shaders.destroy();
 		Sounds.destroy();
+		Cursors.destroy();
+		Rect.destroy();
+		Line.destroy();
+		Point.destroy();
 	}
 	
 	public static void updateGame() {
 		Mouse.getUpdate(); // poll mouse movement
 		glfwPollEvents(); // poll keypress/click events
+		Music.update();
 		
 		switch(mode) {
 		case EDITOR:

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import constants.Mode;
+import constants.Sounds;
 import constants.Textures;
 import guis.elements.RadioButton;
 import guis.elements.RadioButtonChannel;
@@ -11,6 +12,7 @@ import staindev.Game;
 import util.ClickListener;
 import util.Cursors;
 import util.Mouse;
+import util.Music;
 
 /** Singleton which represents the only Editor Screen */
 public class EditorScreen extends Gui implements ClickListener {
@@ -205,7 +207,10 @@ public class EditorScreen extends Gui implements ClickListener {
 	@Override
 	public void switchTo() {
 		Game.mode = Mode.EDITOR;
-		// TODO setup sounds in editor
+		Music.transition(2.0f, () -> {
+			Music.queueLoop(Sounds.TITLE_INTRO); // TODO new loop plz
+			Music.play();
+		});
 	}
 
 	

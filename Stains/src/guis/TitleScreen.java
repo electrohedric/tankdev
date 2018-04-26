@@ -7,7 +7,7 @@ import constants.Sounds;
 import constants.Textures;
 import guis.elements.Button;
 import staindev.Game;
-import util.Sound;
+import util.Music;
 
 public class TitleScreen extends Gui {
 	
@@ -16,13 +16,13 @@ public class TitleScreen extends Gui {
 	private TitleScreen() {
 		super(Textures.Title.BG);
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.50f, 1.0f, Textures.Title.CONTINUE, Mode.TITLE, false, () ->  {
-			// TODO figure it out
+			Sounds.LEMON.forcePlay();
 		}));
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.40f, 1.0f, Textures.Title.NEWGAME, Mode.TITLE, false, () ->  {
 			Game.mode = Mode.PLAY;
 		}));
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.30f, 1.0f, Textures.Title.SETTINGS, Mode.TITLE, false, () ->  {
-			// TODO figure it out
+			Sounds.SCARY.forcePlay();
 		}));
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.20f, 1.0f, Textures.Title.EDITOR, Mode.TITLE, false, () ->  {
 			EditorScreen.getInstance().switchTo(); //TODO wash out music with a swiping sound and change to editor track
@@ -44,15 +44,14 @@ public class TitleScreen extends Gui {
 	@Override
 	public void update() {
 		super.update(); // TODO make moving hand
-		Sound.continueLooping(Sounds.TITLE_LOOP);
 	}
 
 	@Override
 	public void switchTo() {
 		Game.mode = Mode.TITLE;
-		Sounds.TITLE_INTRO.addToQueue();
-		Sounds.TITLE_LOOP.addToQueue();
-		Sound.startMusic();
+		Music.queue(Sounds.TITLE_INTRO);
+		Music.queueLoop(Sounds.TITLE_LOOP);
+		Music.play();
 	}
 
 }

@@ -36,4 +36,10 @@ public class Point {
 		vao.unbind();
 		ibo.unbind();
 	}
+	
+	public static void destroy() {
+		vao.delete();
+		vbo.delete();
+		ibo.delete();
+	}
 }

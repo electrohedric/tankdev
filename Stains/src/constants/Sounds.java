@@ -19,7 +19,7 @@ public class Sounds {
 	
 	public static List<Integer> buffers = new ArrayList<>();
 	
-	public static Sound SPRAY, TITLE_INTRO, TITLE_LOOP;
+	public static Sound SPRAY, TITLE_INTRO, TITLE_LOOP, SCARY, LEMON;
 	
 	public static void init() {
 		String defaultDevice = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
@@ -33,9 +33,11 @@ public class Sounds {
 		
 		// initialize all of our game's sounds here, not need for them to belong to a particular class, this game isn't too big
 		
-		SPRAY = new Sound("player/spray.ogg", 1.0f, false, 1);
-		TITLE_INTRO = new Sound("music/titlescreen_intro.ogg", 1.0f, false, 1);
-		TITLE_LOOP = new Sound("music/titlescreen_loop.ogg", 1.0f, false, 1);
+		SPRAY = new Sound("player/spray.ogg", 1.0f, 1);
+		TITLE_INTRO = new Sound("music/titlescreen_intro.ogg", 1.0f, 1);
+		TITLE_LOOP = new Sound("music/titlescreen_loop.ogg", 1.0f, 1);
+		SCARY = new Sound("scary.ogg", 1.0f, 1);
+		LEMON = new Sound("LEMON.ogg", 1.0f, 1);
 	}
 	
 	public static void destroy() {

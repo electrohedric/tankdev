@@ -15,7 +15,7 @@ import constants.Resources;
 import objects.Surface;
 import util.Log;
 
-public class Texture implements Surface {
+public class Texture extends Surface {
 	
 	private int id;
 	private int width;
@@ -35,6 +35,7 @@ public class Texture implements Surface {
 	 * 					   which the texture is rotated intially from facing to the right
 	 */
 	public Texture(String name, float centerX, float centerY, float quarterTurns) {
+		super();
 		loadImageToGL(name);
 		this.offsetX = centerX - (width / 2.0f);
 		this.offsetY = centerY - (height / 2.0f);

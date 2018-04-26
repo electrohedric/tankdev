@@ -11,4 +11,10 @@ public class Cursors {
 		CROSS = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
 		HAND = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
 	}
+	
+	public static void destroy() {
+		glfwDestroyCursor(POINTER);
+		glfwDestroyCursor(CROSS);
+		glfwDestroyCursor(HAND);
+	}
 }

@@ -41,4 +41,10 @@ public class Rect {
 		vao.unbind();
 		ibo.unbind();
 	}
+	
+	public static void destroy() {
+		vao.delete();
+		vbo.delete();
+		ibo.delete();
+	}
 }

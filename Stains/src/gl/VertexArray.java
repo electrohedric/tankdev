@@ -24,4 +24,8 @@ public class VertexArray {
 		vbo.getFormat().enable();
 	}
 	
+	public void delete() {
+		glDeleteVertexArrays(id);
+	}
+	
 }
