@@ -164,7 +164,7 @@ public class Game {
 		new Player(500, 500, 0.4f, Textures.PLAYER);
 		new Stain(100, 100, 0.8f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH);
 		
-		TitleScreen.getInstance().switchTo();
+		EditorScreen.getInstance().switchTo();
 		
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.

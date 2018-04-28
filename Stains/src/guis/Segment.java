@@ -48,6 +48,19 @@ public class Segment {
 		this.defaultColor = new Vector4f(color); // duplicate color
 		this.program = Shaders.COLOR;
 	}
+	
+	/**
+	 * Like {@link #Segment(float, float, float, float, float, int, int, int, int) Segment} except takes in parameter color
+	 * @param color Color using normalized rgba components
+	 */
+	public Segment(float x1, float y1, float x2, float y2, float width, Vector4f color) {
+		setStartPoint(x1, y1);
+		setEndPoint(x2, y2);
+		this.width = width;
+		this.color = new Vector4f(color);
+		this.defaultColor = new Vector4f(color); // duplicate color
+		this.program = Shaders.COLOR;
+	}
 
 	public void render() {
 		program.bind();
@@ -93,6 +106,37 @@ public class Segment {
 	
 	public void resetColor() {
 		color.set(defaultColor);
+	}
+	
+	/**
+	 * Finds a similarity in the end vertices between this Segment and <strong>other</strong>
+	 * @return a Vector2f holding the x,y value of the corner or <code>null</code> if no corner is matched
+	 */
+	public Vector2f findCorner(Segment other) {
+		if((x == other.x && y == other.y) || (x == other.x2 && y == other.y2))
+			return new Vector2f(x, y);
+		else if((x2 == other.x && y2 == other.y) || (x2 == other.x2 && y2 == other.y2))
+			return new Vector2f(x2, y2);
+		else
+			return null;
+	}
+	
+	public float angleToward(Vector2f corner) {
+		if(x == corner.x && y == corner.y)
+			return rot;
+		else
+		return (float) (rot + Math.PI);
+	}
+	
+	/**
+	 * @return <code>true</code> if this Segment starts and ends at the same points <strong>other</strong> does
+	 */
+	public boolean equals(Segment other) {
+		return x == other.x && y == other.y && x2 == other.x2 && y2 == other.y2;
+	}
+	
+	public float getAngle() {
+		return rot;
 	}
 	
 }

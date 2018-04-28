@@ -18,8 +18,8 @@ public class Sound {
 	
 	/**
 	 * Creates a new Sound which can be played with multiple players
-	 * @param path
-	 * @param volume
+	 * @param path Path of the sound relative to res/sounds. Must be an ogg file
+	 * @param volume Default sound to play at. 1.0f is max volume. 0.0f is silent
 	 * @param maxPlayers
 	 */
 	public Sound(String path, float volume, int maxPlayers) {
@@ -55,6 +55,14 @@ public class Sound {
 			alSource3f(src, AL_VELOCITY, 0, 0, 0);
 			alSourcei(src, AL_BUFFER, buffer);
 		}
+	}
+	
+	/**
+	 * Calls Sound with volume 1, and 1 player. Good for sounds not intended to overlay or for music tracks.
+	 * See constructor {@link #Sound(String, float, int) Sound}
+	 */
+	public Sound(String path) {
+		this(path, 1.0f, 1);
 	}
 	
 	/** Plays the sound in the buffer. If no player is available, no action is taken unless forced

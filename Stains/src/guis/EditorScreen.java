@@ -3,9 +3,12 @@ package guis;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.joml.Vector2f;
+
 import constants.Mode;
 import constants.Sounds;
 import constants.Textures;
+import guis.elements.Arc;
 import guis.elements.RadioButton;
 import guis.elements.RadioButtonChannel;
 import staindev.Game;
@@ -21,13 +24,18 @@ public class EditorScreen extends Gui implements ClickListener {
 	
 	private Segment ghostWall;
 	private Dot ghostDot;
+	private Arc ghostArc;
 	private List<Segment> map;
+	private List<Arc> fillets;
 	private Segment[] gridLines;
 	
 	private Tool tool;
 	private boolean firstPointDown;
 	private int firstClickX;
 	private int firstClickY;
+	
+	private boolean filletFirstSelection;
+	private boolean filletSelectingRadius;
 	
 	private Segment intersecting;
 	
@@ -53,10 +61,14 @@ public class EditorScreen extends Gui implements ClickListener {
 		
 		this.ghostWall = new Segment(0, 0, 0, 0, 3.0f, 127, 127, 127, 255); // instantiate a wall with just a gray color
 		this.ghostDot = new Dot(0, 0, 9.0f, 127, 127, 127, 255);
+		this.ghostArc = new Arc(null, null, 0, 60, 60, 60, 255);
 		this.map = new ArrayList<>();
+		this.fillets = new ArrayList<>();
 		this.firstPointDown = false;
 		this.firstClickX = 0;
 		this.firstClickY = 0;
+		this.filletFirstSelection = false;
+		this.filletSelectingRadius = false;
 		
 		this.GRID_SIZE = 35;
 		this.GRID_OFFSET_X = 50;
@@ -96,7 +108,17 @@ public class EditorScreen extends Gui implements ClickListener {
 		super.update();
 		switch(tool) {
 		case FILLET:
-			trySelect(50, 50, 200);  // blueish
+			if(filletSelectingRadius) {
+				Vector2f corner = ghostArc.getTangent1().findCorner(ghostArc.getTangent2());
+				Vector2f cursorVec = new Vector2f(mouseGridX() - corner.x, mouseGridY() - corner.y);
+				float dist = cursorVec.length();
+				if(dist != ghostArc.getDistance()) { // we don't want to force an update if we don't have to
+					ghostArc.setDistance(dist);
+				}
+				
+			} else {
+				trySelect(50, 50, 200);  // blueish
+			}
 			break;
 		case LINE:
 			if(firstPointDown) {
@@ -136,6 +158,13 @@ public class EditorScreen extends Gui implements ClickListener {
 		super.render();
 		for(Segment gridLine : gridLines)
 			gridLine.render();
+		for(Arc arc : fillets)
+			arc.render();
+		if(tool == Tool.FILLET) {
+			if(filletSelectingRadius) {
+				ghostArc.render();
+			}
+		}
 		for(Segment wall : map)
 			wall.render();
 		if(tool == Tool.LINE) { // we only need extra rendering for the line tool
@@ -145,8 +174,6 @@ public class EditorScreen extends Gui implements ClickListener {
 				else
 					ghostDot.render();
 			}
-		} else if(tool == Tool.FILLET) {
-			// TODO eventually fillet too
 		}
 	}
 	
@@ -159,7 +186,25 @@ public class EditorScreen extends Gui implements ClickListener {
 		if(isOnMap()) {
 			switch(tool) {
 			case FILLET:
-				// TODO help me fillet...
+				if(button == Mouse.LEFT) {
+					if(filletSelectingRadius) {
+						fillets.add(new Arc(ghostArc.getTangent1(), ghostArc.getTangent2(), ghostArc.getDistance(), 250, 250, 250, 255));
+						filletFirstSelection = false;
+						filletSelectingRadius = false;
+					} else if(intersecting != null) {
+						if(filletFirstSelection) {
+							ghostArc.setTangent2(intersecting);
+							filletFirstSelection = false;
+							filletSelectingRadius = true;
+						} else {
+							ghostArc.setTangent1(intersecting);
+							filletFirstSelection = true;
+						}
+					}
+				} else if(button == Mouse.RIGHT){
+					filletFirstSelection = false;
+					filletSelectingRadius = false;
+				}
 				break;
 			case LINE:
 				if(button == Mouse.LEFT) {
@@ -208,7 +253,7 @@ public class EditorScreen extends Gui implements ClickListener {
 	public void switchTo() {
 		Game.mode = Mode.EDITOR;
 		Music.transition(2.0f, () -> {
-			Music.queueLoop(Sounds.TITLE_INTRO); // TODO new loop plz
+			Music.queueLoop(Sounds.EDITOR_LOOP); // TODO new loop plz
 			Music.play();
 		});
 	}
