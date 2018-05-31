@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 import org.joml.Matrix4f;
 
 import constants.Shaders;
+import entities.Player;
 import gl.Shader;
 import staindev.Game;
 
@@ -24,6 +25,7 @@ public class GameObject {
 	private int slot;
 	private Shader program;
 	private Surface activeTexture;
+	private boolean playerOffset;
 	
 	// Preallocations
 	private Matrix4f proj = new Matrix4f();
@@ -36,9 +38,9 @@ public class GameObject {
 	 * @param y Initial Y
 	 * @param rot Initial rotation, in radians
 	 * @param scale Initial scale from actual size
-	 * @param program {@link Shader#Shader(String, String...) Shader} program to use when rendering. Must have the following uniforms: u_Texture, u_MVP, u_brightScale
+	 * @param playerOffset <code>true</code> if the render should be displayed in relation to the player
 	 */
-	public GameObject(float x, float y, float rot, float scale) {
+	public GameObject(float x, float y, float rot, float scale, boolean playerOffset) {
 		this.x = x;
 		this.y = y;
 		this.rot = rot;
@@ -47,6 +49,7 @@ public class GameObject {
 		this.slot = 0;
 		this.program = Shaders.TEXTURE;
 		this.activeTexture = null;
+		this.playerOffset = playerOffset;
 	}
 	
 	/** 
@@ -59,8 +62,15 @@ public class GameObject {
 			activeTexture.bind(slot);
 			Rect.bind(); // binds the VAO
 			proj.set(Game.proj);
+			float offX = 0, offY = 0;
+			if(playerOffset) {
+				offX = Game.WIDTH / 2 - Player.getInstance().x;
+				offY = Game.HEIGHT / 2 - Player.getInstance().y;
+			} else {
+				offX = offY = 0;
+			}
 			model = model.
-					translation(x, y, 0).
+					translation(x + offX, y + offY, 0).
 					rotate(rot - activeTexture.getOffsetRot(), 0.0f, 0.0f, 1.0f).
 					scale(scale, scale, 1.0f).
 					translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0).

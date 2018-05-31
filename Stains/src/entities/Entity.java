@@ -28,11 +28,10 @@ public abstract class Entity extends GameObject {
 	 * @param vy initial velocity in the y direction
 	 * @param rot initial rotation, in radians
 	 * @param scale initial scale based on actual texture size (i.e. <code>1.0f</code> is 1:1 scale with texture)
-	 * @param texture <code>Texture</code> to be rendered
-	 * @param program <code>Shader</code> program to use when rendering. Must have the following uniforms: uTexture, u_MVP
+	 * @param playerOffset <code>true</code> if the render should be displayed in relation to the player
 	 */
-	public Entity(float x, float y, float vx, float vy, float rot, float scale) {
-		super(x, y, rot, scale);
+	public Entity(float x, float y, float vx, float vy, float rot, float scale, boolean playerOffset) {
+		super(x, y, rot, scale, playerOffset);
 //		this.vx = vx;
 //		this.vy = vy;
 		list.add(this);

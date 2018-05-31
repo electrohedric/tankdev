@@ -30,7 +30,7 @@ public abstract class Gui {
 			b.render();
 	}
 	
-	void setMousePointer(long cursor) {
+	protected void setMousePointer(long cursor) {
 		glfwSetCursor(Game.window, cursor);
 	}
 	

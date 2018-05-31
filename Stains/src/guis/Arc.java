@@ -1,12 +1,10 @@
-package guis.elements;
+package guis;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.joml.Vector2f;
 import org.joml.Vector4f;
-
-import guis.Segment;
 
 public class Arc {
 
@@ -154,6 +152,42 @@ public class Arc {
 	
 	public void setColor(int r, int g, int b, int a) {
 		color.set(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+	}
+	
+	/**
+	 * @param segments
+	 * @return the string to be load with <code>fromString(indexBuffer)</code>
+	 */
+	public String toString(List<Segment> indexBuffer) {
+		int index1 = -1, index2 = -1;
+		for(int i = 0; i < indexBuffer.size(); i++) {
+			if(tangent1.equals(indexBuffer.get(i)))
+				index1 = i;
+			else if(tangent2.equals(indexBuffer.get(i)))
+				index2 = i;
+		}
+		if(index1 == -1 || index2 == -1)
+			throw new IllegalArgumentException("IndexBuffer does not contain tangents");
+		return String.format("%d,%d,%.2f", index1, index2, distance);
+	}
+	
+	public static Arc fromString(String s, List<Segment> indexBuffer) {
+		String[] args = s.split(",");
+		if(args.length != 3)
+			throw new IllegalArgumentException("String must have 2 integers followed by 1 float separated by commas");
+		int t1, t2;
+		float dist;
+		try {
+			t1 = Integer.parseInt(args[0]);
+			t2 = Integer.parseInt(args[1]);
+			dist = Float.parseFloat(args[2]);
+		} catch(NumberFormatException nfe) {
+			nfe.printStackTrace();
+			return null;
+		}
+		if(t1 >= indexBuffer.size() || t2 >= indexBuffer.size())
+			throw new IllegalArgumentException("Index buffer does not contain correct tangents");
+		return new Arc(indexBuffer.get(t1), indexBuffer.get(t2), dist, 250, 250, 250, 255);
 	}
 	
 }

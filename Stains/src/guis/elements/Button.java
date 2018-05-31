@@ -26,11 +26,9 @@ public class Button extends GameObject implements ClickListener {
 	 * @param callback {@link Runnable} function to call when pressed
 	 */
 	public Button(float x, float y, float scale, Texture texture, Mode screen, boolean feedback, Runnable callback) {
-		super(0, 0, 0, scale); // 0, 0 for x, y. Will set after we get width to center
+		super(x, y, 0, scale, false);
 		this.width = texture.getWidth();
 		this.height = texture.getHeight();
-		this.x = x - width / 2.0f;
-		this.y = y - height / 2.0f;
 		this.mouseHovered = false;
 		this.clickedOn = false;
 		this.feedback = feedback;
@@ -40,7 +38,7 @@ public class Button extends GameObject implements ClickListener {
 	}
 	
 	public void update() {
-		if(Collision.pointCollidesAABB(Mouse.x, Mouse.y, x, y, width * scale, height * scale)) {
+		if(Collision.pointCollidesAABB(Mouse.x, Mouse.y, x - width * scale / 2, y - height * scale / 2, width * scale, height * scale)) {
 			if(!mouseHovered) {
 				if(feedback)
 					onEnter();

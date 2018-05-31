@@ -15,7 +15,6 @@ import constants.Shaders;
 import constants.Sounds;
 import constants.Textures;
 import entities.Entity;
-import entities.Player;
 import entities.Stain;
 import gl.Renderer;
 import guis.EditorScreen;
@@ -161,10 +160,9 @@ public class Game {
 		// TODO buttons size should be relative to the screen width and height, not the button so buttons can be displayed the same on all screens
 		
 		
-		new Player(500, 500, 0.4f, Textures.PLAYER);
 		new Stain(100, 100, 0.8f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH);
 		
-		EditorScreen.getInstance().switchTo();
+		TitleScreen.getInstance().switchTo();
 		
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.
@@ -212,10 +210,10 @@ public class Game {
 			for(int i = Animation.queue.size() - 1; i >= 0; i--)
 				Animation.queue.get(i).update();
 			
-			for(Entity e : Entity.list)
-				e.update();
+			for(int i = Entity.list.size() - 1; i >= 0; i--)
+				Entity.list.get(i).update();
 			
-			for(int i = Entity.list.size() - 1; i >= 0; i--) // avoid Concurrent Modification
+			for(int i = Entity.list.size() - 1; i >= 0; i--)
 				if(Entity.list.get(i).isDead())
 					Entity.list.remove(i);
 			break;
@@ -239,6 +237,7 @@ public class Game {
 			
 			break;
 		case PLAY:
+			
 			for(Entity e : Entity.list)
 				e.render();
 			break;

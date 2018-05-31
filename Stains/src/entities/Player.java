@@ -4,7 +4,9 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import constants.Mode;
 import constants.Sounds;
+import constants.Textures;
 import gl.Texture;
+import staindev.Game;
 import util.ClickListener;
 import util.Key;
 import util.Mouse;
@@ -13,14 +15,21 @@ import util.Mouse;
 public class Player extends Entity implements ClickListener {
 	
 	/** The player. For now, there is only one player as multiplayer support not implemented */
-	public static Player instance;
+	private static Player instance;
 	
 	public Player(float x, float y, float scale, Texture texture) {
-		super(x, y, 0, 0, 0, scale);
+		super(x, y, 0, 0, 0, scale, true);
 		this.moveSpeed = 200;
 		this.setActiveTexture(texture);
 		ClickListener.addToCallback(this, Mode.PLAY);
-		instance = this; // if you feel like making a new Player, it will override the singleton instance
+		instance = this;
+	}
+	
+	public static Player getInstance() {
+		if(instance != null)
+			return instance;
+		else
+			return new Player(500, 500, 0.4f, Textures.PLAYER);
 	}
 
 	@Override
@@ -43,7 +52,7 @@ public class Player extends Entity implements ClickListener {
 	}
 	
 	private void checkMouse() {
-		rot = (float) (Math.atan2(Mouse.y - y, Mouse.x - x));
+		rot = (float) (Math.atan2(Mouse.y - Game.HEIGHT / 2, Mouse.x - Game.WIDTH / 2));
 	}
 
 	@Override

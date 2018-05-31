@@ -6,14 +6,17 @@ import java.util.List;
 import org.joml.Vector2f;
 
 import constants.Mode;
+import constants.Resources;
 import constants.Sounds;
 import constants.Textures;
-import guis.elements.Arc;
+import guis.elements.Button;
 import guis.elements.RadioButton;
 import guis.elements.RadioButtonChannel;
 import staindev.Game;
 import util.ClickListener;
 import util.Cursors;
+import util.FileUtil;
+import util.Log;
 import util.Mouse;
 import util.Music;
 
@@ -58,17 +61,19 @@ public class EditorScreen extends Gui implements ClickListener {
 			tool = Tool.REMOVE;
 			setMousePointer(Cursors.CROSS);
 		}));
+		elements.add(new Button(Game.WIDTH * 0.97f, Game.HEIGHT * 0.95f, 1.0f, Textures.Editor.SAVE, Mode.EDITOR, true, () -> {
+			saveMap();
+		}));
+		elements.add(new Button(Game.WIDTH * 0.90f, Game.HEIGHT * 0.95f, 1.0f, Textures.Editor.LOAD, Mode.EDITOR, true, () -> {
+			loadMap();
+		}));
 		
 		this.ghostWall = new Segment(0, 0, 0, 0, 3.0f, 127, 127, 127, 255); // instantiate a wall with just a gray color
 		this.ghostDot = new Dot(0, 0, 9.0f, 127, 127, 127, 255);
 		this.ghostArc = new Arc(null, null, 0, 60, 60, 60, 255);
 		this.map = new ArrayList<>();
 		this.fillets = new ArrayList<>();
-		this.firstPointDown = false;
-		this.firstClickX = 0;
-		this.firstClickY = 0;
-		this.filletFirstSelection = false;
-		this.filletSelectingRadius = false;
+		resetClicks();
 		
 		this.GRID_SIZE = 35;
 		this.GRID_OFFSET_X = 50;
@@ -86,6 +91,14 @@ public class EditorScreen extends Gui implements ClickListener {
 		
 		ClickListener.addToCallback(this, Mode.EDITOR);
 		instance = this;
+	}
+	
+	private void resetClicks() {
+		firstPointDown = false;
+		firstClickX = 0;
+		firstClickY = 0;
+		filletFirstSelection = false;
+		filletSelectingRadius = false;
 	}
 	
 	public static EditorScreen getInstance() {
@@ -136,6 +149,9 @@ public class EditorScreen extends Gui implements ClickListener {
 		}
 	}
 	
+	/**
+	 * Attempts to select a segment and colors it according to r,g,b if found. Sets <code>interesting</code> if found
+	 */
 	private void trySelect(int r, int g, int b) {
 		if(intersecting != null)
 			intersecting.resetColor();
@@ -248,11 +264,43 @@ public class EditorScreen extends Gui implements ClickListener {
 	public void handleRelease(int button) {
 		
 	}
+	
+	private void saveMap() {
+		StringBuilder fileData = new StringBuilder();
+		for(Segment seg : map)
+			fileData.append(seg.toString() + "\n");
+		fileData.append("$\n");
+		for(Arc arc : fillets)
+			fileData.append(arc.toString(map) + "\n");
+		FileUtil.writeTo(Resources.MAPS_PATH + "test.csmap", fileData.toString());
+		System.out.println("Saved map");
+	}
+	
+	private void loadMap() {
+		String data = FileUtil.readFrom(Resources.MAPS_PATH + "test.csmap");
+		String[] dataSplit = data.split("\n\\$\n"); // matches newline $ newline
+		if(dataSplit.length != 2) {
+			Log.err("Loading map failed. 2 segments of map data expected. Got " + dataSplit.length + ". Map probably corrupted.");
+			return;
+		}
+		map.clear();
+		fillets.clear();
+		resetClicks();
+		String[] mapString = dataSplit[0].split("\n");
+		String[] filletString = dataSplit[1].split("\n");
+		for(String s : mapString)
+			if(!s.equals(""))
+				map.add(Segment.fromString(s));
+		for(String s : filletString)
+			if(!s.equals(""))
+				fillets.add(Arc.fromString(s, map));
+		
+	}
 
 	@Override
 	public void switchTo() {
 		Game.mode = Mode.EDITOR;
-		Music.transition(2.0f, () -> {
+		Music.transition(1.0f, () -> {
 			Music.queueLoop(Sounds.EDITOR_LOOP); // TODO new loop plz
 			Music.play();
 		});

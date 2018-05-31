@@ -139,4 +139,29 @@ public class Segment {
 		return rot;
 	}
 	
+	/**
+	 * @return String to be loaded with <code>fromString()</code>
+	 */
+	public String toString() {
+		return String.format("%.1f,%.1f,%.1f,%.1f", x, y, x2, y2);
+	}
+	
+	/**
+	 * @return a new Segment that is intended for collision, not rendering
+	 */
+	public static Segment fromString(String s) {
+		String[] args = s.split(",");
+		if(args.length != 4)
+			throw new IllegalArgumentException("String must have 4 floats separated by commas");
+		float[] values = new float[4];
+		try {
+			for(int i = 0; i < 4; i++)
+				values[i] = Float.parseFloat(args[i]);
+		} catch(NumberFormatException nfe) {
+			nfe.printStackTrace();
+			return null;
+		}
+		return new Segment(values[0], values[1], values[2], values[3], 3.0f, 250, 250, 250, 255);
+	}
+	
 }

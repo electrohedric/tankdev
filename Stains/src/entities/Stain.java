@@ -18,7 +18,7 @@ public class Stain extends Entity implements ClickListener {
 	Animation deathAnimation;
 	
 	public Stain(float x, float y, float scale, Texture aliveTexture, Animation deathAnimation) {
-		super(x, y, 0.0f, 0.0f, 0.0f, scale);
+		super(x, y, 0.0f, 0.0f, 0.0f, scale, true);
 		this.moveSpeed = 20.0f; // pixels / second
 		this.aliveTexture = aliveTexture;
 		this.deathAnimation = deathAnimation;
@@ -30,7 +30,7 @@ public class Stain extends Entity implements ClickListener {
 	@Override
 	public void update() {
 		if(alive) {
-			rot = angleTo(Player.instance);
+			rot = angleTo(Player.getInstance());
 			move();
 			if(deathAnimation.isFinished()) {
 				kill();

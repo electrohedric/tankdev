@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gl.Texture;
-import gl.Texture.Anchor;
 import objects.Surface;
 import util.Animation;
 
@@ -24,10 +23,6 @@ public class Textures {
 		Editor.init();
 	}
 	
-	protected static Texture loadButton(String path) {
-		return new Texture(path, Anchor.BOTTOM_LEFT); // ALL BUTTONS MUST HAVE TEXTURES ANCHORED BOTTOM LEFT
-	}
-	
 	public static void destroy() {
 		for(Surface s : allTextures)
 			s.delete();
@@ -38,22 +33,24 @@ public class Textures {
 		
 		private static void init() {
 			  BG = new Texture("guis/title/bg.png");
-			  CONTINUE = loadButton("guis/title/continue.png");
-			  NEWGAME = loadButton("guis/title/newgame.png");
-			  SETTINGS = loadButton("guis/title/settings.png");
-			  EDITOR = loadButton("guis/title/editor.png");
-			  QUIT = loadButton("guis/title/quit.png");
+			  CONTINUE = new Texture("guis/title/continue.png");
+			  NEWGAME = new Texture("guis/title/newgame.png");
+			  SETTINGS = new Texture("guis/title/settings.png");
+			  EDITOR = new Texture("guis/title/editor.png");
+			  QUIT = new Texture("guis/title/quit.png");
 		}
 	}
 	
 	public static class Editor {
-		public static Texture BG, LINE, FILLET, REMOVE;
+		public static Texture BG, LINE, FILLET, REMOVE, SAVE, LOAD;
 		
 		private static void init() {
 			BG = new Texture("guis/editor/bg.png");
-			LINE = loadButton("guis/editor/line.png");
-			FILLET = loadButton("guis/editor/fillet.png");
-			REMOVE = loadButton("guis/editor/remove.png");
+			LINE = new Texture("guis/editor/line.png");
+			FILLET = new Texture("guis/editor/fillet.png");
+			REMOVE = new Texture("guis/editor/remove.png");
+			SAVE = new Texture("guis/editor/save.png");
+			LOAD = new Texture("guis/editor/load.png");
 		}
 	}
 }
