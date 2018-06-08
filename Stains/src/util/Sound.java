@@ -13,8 +13,10 @@ import constants.Sounds;
 
 public class Sound {
 	
-	int buffer;
+	protected int buffer;
 	private int[] source;
+	private float volume;
+	public static float mixerVolume = 1.0f;
 	
 	/**
 	 * Creates a new Sound which can be played with multiple players
@@ -28,6 +30,7 @@ public class Sound {
 		ShortBuffer audioBuf = STBVorbis.stb_vorbis_decode_filename(Resources.SOUNDS_PATH + path, channelsBuf, rateBuf);
 		int channels = channelsBuf.get();
 		int rate = rateBuf.get();
+		this.volume = volume;
 		
 		int format = -1;
 		if(channels == 1) {
@@ -49,7 +52,7 @@ public class Sound {
 		// specifically for more than one souce and no looping, but hey it works for everything.
 		// it wouldn't make much sense to have the same sound playing on a loop and one not, so this works out
 		for(int src : source) {
-			alSourcef(src, AL_GAIN, volume);
+			alSourcef(src, AL_GAIN, volume * Sound.mixerVolume);
 			alSourcef(src, AL_PITCH, 1.0f);
 			alSource3f(src, AL_POSITION, 0, 0, 0);
 			alSource3f(src, AL_VELOCITY, 0, 0, 0);
@@ -105,7 +108,8 @@ public class Sound {
 		return play(true);
 	}
 	
-	public static void playBuffer(int src) {
+	public void playBuffer(int src) {
+		alSourcef(src, AL_GAIN, volume * Sound.mixerVolume);
 		alSourcePlay(src);
 	}
 	
@@ -154,8 +158,7 @@ public class Sound {
 	}
 	
 	public void setVolume(float volume) {
-		for(int src : source)
-			alSourcef(src, AL_GAIN, volume);
+		this.volume = volume;
 	}
 	
 }

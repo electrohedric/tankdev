@@ -13,19 +13,21 @@ public class Arc {
 	private float distance;
 	private boolean altered;
 	private float radius;
+	private float width;
 	private Vector4f color;
 	
-	public Arc(Segment tangent1, Segment tangent2, float distance, int r, int g, int b, int a) {
-		this(tangent1, tangent2, distance, new Vector4f(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
+	public Arc(Segment tangent1, Segment tangent2, float distance, float width, int r, int g, int b, int a) {
+		this(tangent1, tangent2, distance, width, new Vector4f(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f));
 	}
 	
-	public Arc(Segment tangent1, Segment tangent2, float distance, Vector4f color) {
+	public Arc(Segment tangent1, Segment tangent2, float distance, float width, Vector4f color) {
 		this.segments = new ArrayList<>();
 		this.tangent1 = tangent1;
 		this.tangent2 = tangent2;
 		this.distance = distance;
 		setTangent2(tangent2);
 		setDistance(distance);
+		this.width = width;
 		this.radius = 0; // we've got no clue till we generate those segments
 		this.color = new Vector4f(color);
 		generateSegments();
@@ -98,7 +100,7 @@ public class Arc {
 			float x2 = (float) (radius * Math.cos(a) + cx);
 			float y2 = (float) (radius * Math.sin(a) + cy);
 			if(x1 != x2 || y1 != y2) {
-				segments.add(new Segment(x1, y1, x2, y2, 3.0f, color));
+				segments.add(new Segment(x1, y1, x2, y2, width, color));
 				x1 = x2;
 				y1 = y2;
 			}
@@ -140,6 +142,15 @@ public class Arc {
 	
 	public float getDistance() {
 		return distance;
+	}
+	
+	public void setWidth(float width) {
+		for(Segment segment : segments)
+			segment.setWidth(width);
+	}
+	
+	public float getWidth() {
+		return width;
 	}
 	
 	public float getRadius() {
@@ -187,7 +198,7 @@ public class Arc {
 		}
 		if(t1 >= indexBuffer.size() || t2 >= indexBuffer.size())
 			throw new IllegalArgumentException("Index buffer does not contain correct tangents");
-		return new Arc(indexBuffer.get(t1), indexBuffer.get(t2), dist, 250, 250, 250, 255);
+		return new Arc(indexBuffer.get(t1), indexBuffer.get(t2), dist, EditorScreen.wallWidth, 250, 250, 250, 255);
 	}
 	
 }

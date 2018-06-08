@@ -15,6 +15,7 @@ public class Music {
 	private static float volume;
 	/** whether or not sound is literally playing. <code>false</code> if stopped or paused */
 	public static boolean playing;
+	public static float mixerVolume = 1.0f;
 	
 	/**
 	 * Creates a new Sound which can be played with multiple players
@@ -31,7 +32,7 @@ public class Music {
 		fadeForTime = 0;
 		fadeCallback = null;
 		playing = false;
-		setVolume(1.0f);
+		setVolume(Music.mixerVolume);
 		alSourcef(source, AL_PITCH, 1.0f);
 		alSource3f(source, AL_POSITION, 0, 0, 0);
 		alSource3f(source, AL_VELOCITY, 0, 0, 0);
@@ -102,7 +103,7 @@ public class Music {
 			currentFadeTime += Game.delta;
 			if(currentFadeTime >= fadeForTime) { // we hit max fade time
 				if(fadeDir > 0) { // just faded in
-					setVolume(1.0f);
+					setVolume(Music.mixerVolume);
 					fadeDir = 0;
 				} else { // just faded out
 					setVolume(0.0f);
@@ -115,7 +116,7 @@ public class Music {
 				}
 			} else { // change volume
 				float timeLeft = fadeForTime - currentFadeTime;
-				float volumeLeft = fadeDir > 0 ? 1.0f - volume : volume; // volume left based on fade direction
+				float volumeLeft = fadeDir > 0 ? Music.mixerVolume - volume : volume; // volume left based on fade direction
 				float dvdt = volumeLeft / timeLeft * Game.delta;
 				setVolume(volume + dvdt * fadeDir);
 			}
@@ -164,6 +165,6 @@ public class Music {
 	
 	public static void setVolume(float volume) {
 		Music.volume = volume;
-		alSourcef(source, AL_GAIN, volume);
+		alSourcef(source, AL_GAIN, volume * Music.mixerVolume);
 	}
 }

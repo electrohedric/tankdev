@@ -87,6 +87,14 @@ public class Segment {
 		this.rot = (float) Math.atan2(y2 - y, x2 - x);
 	}
 	
+	public float getWidth() {
+		return width;
+	}
+
+	public void setWidth(float width) {
+		this.width = width;
+	}
+
 	public void setColor(int r, int g, int b, int a) {
 		color.set(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
 	}
@@ -161,7 +169,7 @@ public class Segment {
 			nfe.printStackTrace();
 			return null;
 		}
-		return new Segment(values[0], values[1], values[2], values[3], 3.0f, 250, 250, 250, 255);
+		return new Segment(values[0], values[1], values[2], values[3], EditorScreen.wallWidth, 250, 250, 250, 255);
 	}
 	
 }

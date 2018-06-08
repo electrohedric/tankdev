@@ -25,6 +25,7 @@ import objects.Rect;
 import util.Animation;
 import util.ClickListener;
 import util.Cursors;
+import util.Log;
 import util.Mouse;
 import util.Music;
 
@@ -40,7 +41,7 @@ public class Game {
 	public static Matrix4f proj = new Matrix4f(); // can't instantiate until WIDTH and HEIGHT are set
 	
 	public static void main(String[] args) {
-		System.out.println("LWJGL version " + Version.getVersion());
+		Log.log("LWJGL version " + Version.getVersion());
 
 		init();
 		loop();
@@ -109,7 +110,7 @@ public class Game {
 		// creates the GLCapabilities instance and makes the OpenGL
 		// bindings available for use.
 		GL.createCapabilities();
-		System.out.println("OpenGL version " + glGetString(GL_VERSION));
+		Log.log("OpenGL version " + glGetString(GL_VERSION));
 		
 		Textures.init();
 		Shaders.init();
@@ -150,6 +151,7 @@ public class Game {
 		 * x, y, u, v
 		 */
 		
+		// make stuff look nice
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_LINE_SMOOTH);
@@ -178,7 +180,7 @@ public class Game {
 			
 			double currentSystemTime = glfwGetTime();
 			delta = (float) (currentSystemTime - lastSystemTime);
-			if(delta > 1.0f) delta = 0; // if delta is way too large (e.g. Game was paused) don't process a million frames, please
+			if(delta > 1.0f) delta = 0; // if delta is way too large (e.g. Game was out of focus) don't process a million frames, please
 			lastSystemTime = currentSystemTime;
 		}
 		

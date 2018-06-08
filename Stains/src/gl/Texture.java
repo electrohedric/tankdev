@@ -11,6 +11,8 @@ import java.nio.ByteBuffer;
 
 import javax.imageio.ImageIO;
 
+import org.lwjgl.BufferUtils;
+
 import constants.Resources;
 import objects.Surface;
 import util.Log;
@@ -75,7 +77,7 @@ public class Texture extends Surface {
 		for(int i = 0; i < size; i++)
 			storeBytes[i] = (byte) store[i];
 		
-		ByteBuffer data = ByteBuffer.allocateDirect(size);
+		ByteBuffer data = BufferUtils.createByteBuffer(size);
 		data.put(storeBytes);
 		data.flip(); // openGL wants data starting from bottom left corner
 		

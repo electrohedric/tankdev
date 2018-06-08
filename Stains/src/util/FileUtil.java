@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 
 public class FileUtil {
@@ -40,7 +41,10 @@ public class FileUtil {
 	    try {
 			data = new String(Files.readAllBytes(Paths.get(path)));
 		} catch (IOException e) {
-			e.printStackTrace();
+			if(e instanceof NoSuchFileException)
+				Log.err(path + " does not exist");
+			else
+				e.printStackTrace();
 		}
 	    return data;
 	}

@@ -1,14 +1,24 @@
 package guis;
 
+import static org.lwjgl.opengl.GL11.*;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import org.joml.Vector2f;
+import org.lwjgl.glfw.GLFW;
 
 import constants.Mode;
 import constants.Resources;
 import constants.Sounds;
 import constants.Textures;
+import gl.FrameBufferRenderBuffer;
+import gl.Renderer;
 import guis.elements.Button;
 import guis.elements.RadioButton;
 import guis.elements.RadioButtonChannel;
@@ -16,6 +26,7 @@ import staindev.Game;
 import util.ClickListener;
 import util.Cursors;
 import util.FileUtil;
+import util.Key;
 import util.Log;
 import util.Mouse;
 import util.Music;
@@ -24,6 +35,7 @@ import util.Music;
 public class EditorScreen extends Gui implements ClickListener {
 	
 	private static EditorScreen instance;
+	protected static float wallWidth = 3.0f;
 	
 	private Segment ghostWall;
 	private Dot ghostDot;
@@ -63,14 +75,16 @@ public class EditorScreen extends Gui implements ClickListener {
 		}));
 		elements.add(new Button(Game.WIDTH * 0.97f, Game.HEIGHT * 0.95f, 1.0f, Textures.Editor.SAVE, Mode.EDITOR, true, () -> {
 			saveMap();
+			if(Key.down(GLFW.GLFW_KEY_LEFT_SHIFT) || Key.down(GLFW.GLFW_KEY_RIGHT_SHIFT))
+				saveMapImage();
 		}));
 		elements.add(new Button(Game.WIDTH * 0.90f, Game.HEIGHT * 0.95f, 1.0f, Textures.Editor.LOAD, Mode.EDITOR, true, () -> {
 			loadMap();
 		}));
 		
-		this.ghostWall = new Segment(0, 0, 0, 0, 3.0f, 127, 127, 127, 255); // instantiate a wall with just a gray color
-		this.ghostDot = new Dot(0, 0, 9.0f, 127, 127, 127, 255);
-		this.ghostArc = new Arc(null, null, 0, 60, 60, 60, 255);
+		this.ghostWall = new Segment(0, 0, 0, 0, EditorScreen.wallWidth, 127, 127, 127, 255); // instantiate a wall with just a gray color
+		this.ghostDot = new Dot(0, 0, EditorScreen.wallWidth * 3, 127, 127, 127, 255);
+		this.ghostArc = new Arc(null, null, 0, EditorScreen.wallWidth, 60, 60, 60, 255);
 		this.map = new ArrayList<>();
 		this.fillets = new ArrayList<>();
 		resetClicks();
@@ -84,10 +98,11 @@ public class EditorScreen extends Gui implements ClickListener {
 		this.GRID_MAX_X = GRID_OFFSET_X + (GRID_WIDTH - 1) * GRID_SIZE;
 		this.GRID_MAX_Y = GRID_OFFSET_Y + (GRID_HEIGHT - 1) * GRID_SIZE;
 		
+		float gridline_width = 1.0f;
 		for(int c = 0; c < GRID_WIDTH; c++)
-			gridLines[c] = new Segment(c * GRID_SIZE + GRID_OFFSET_X, GRID_OFFSET_Y, c * GRID_SIZE + GRID_OFFSET_X, GRID_MAX_Y, 1.0f, 0, 0, 50, 255);
+			gridLines[c] = new Segment(c * GRID_SIZE + GRID_OFFSET_X, GRID_OFFSET_Y, c * GRID_SIZE + GRID_OFFSET_X, GRID_MAX_Y, gridline_width, 0, 0, 50, 255);
 		for(int r = 0; r < GRID_HEIGHT; r++)
-			gridLines[GRID_WIDTH + r] = new Segment(GRID_OFFSET_X, r * GRID_SIZE + GRID_OFFSET_Y, GRID_MAX_X, r * GRID_SIZE + GRID_OFFSET_Y, 1.0f, 0, 0, 50, 255);
+			gridLines[GRID_WIDTH + r] = new Segment(GRID_OFFSET_X, r * GRID_SIZE + GRID_OFFSET_Y, GRID_MAX_X, r * GRID_SIZE + GRID_OFFSET_Y, gridline_width, 0, 0, 50, 255);
 		
 		ClickListener.addToCallback(this, Mode.EDITOR);
 		instance = this;
@@ -204,7 +219,7 @@ public class EditorScreen extends Gui implements ClickListener {
 			case FILLET:
 				if(button == Mouse.LEFT) {
 					if(filletSelectingRadius) {
-						fillets.add(new Arc(ghostArc.getTangent1(), ghostArc.getTangent2(), ghostArc.getDistance(), 250, 250, 250, 255));
+						fillets.add(new Arc(ghostArc.getTangent1(), ghostArc.getTangent2(), ghostArc.getDistance(), EditorScreen.wallWidth, 250, 250, 250, 255));
 						filletFirstSelection = false;
 						filletSelectingRadius = false;
 					} else if(intersecting != null) {
@@ -228,7 +243,7 @@ public class EditorScreen extends Gui implements ClickListener {
 					int clickY = mouseGridY();
 					if(!(clickX == firstClickX && clickY == firstClickY && firstPointDown)) { // don't do anything if starting point and ending point are the same
 						if(firstPointDown)
-							map.add(new Segment(firstClickX, firstClickY, clickX, clickY, 3.0f, 250, 250, 250, 255)); // TODO no duplicate walls and no intersections. color red if these
+							map.add(new Segment(firstClickX, firstClickY, clickX, clickY, EditorScreen.wallWidth, 250, 250, 250, 255)); // TODO no duplicate walls and no intersections. color red if these
 						firstClickX = clickX; // start next wall off where this one ended
 						firstClickY = clickY;
 						ghostWall.setStartPoint(firstClickX, firstClickY);
@@ -265,6 +280,39 @@ public class EditorScreen extends Gui implements ClickListener {
 		
 	}
 	
+	private void saveMapImage() {
+		FrameBufferRenderBuffer fbo = new FrameBufferRenderBuffer(1920, 1080); // TODO determine image size
+		fbo.bind();
+		Renderer.setClearColor(0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT); // set background for temp fbo
+		
+		// render just the parts we want
+		float renderWidth = 1.2f;
+		for(Arc arc : fillets) {
+			arc.setWidth(renderWidth);
+			arc.render();
+			arc.setWidth(EditorScreen.wallWidth);
+		}
+		for(Segment wall : map) {
+			wall.setWidth(renderWidth);
+			wall.render();
+			wall.setWidth(EditorScreen.wallWidth);
+		}
+		
+		// save the fbo to a file
+		BufferedImage img = fbo.readPixels();
+		fbo.unbind();
+		String name = "mostRecentMap.png";
+		try {
+		    ImageIO.write(img, "png", new File(Resources.MAPS_PATH + name));
+		} catch (IOException e) {
+			Log.err("Cannot write to file: " + Resources.MAPS_PATH + name);
+			e.printStackTrace();
+		}
+		fbo.delete();
+		Sounds.SCARY.forcePlay();
+	}
+	
 	private void saveMap() {
 		StringBuilder fileData = new StringBuilder();
 		for(Segment seg : map)
@@ -272,12 +320,12 @@ public class EditorScreen extends Gui implements ClickListener {
 		fileData.append("$\n");
 		for(Arc arc : fillets)
 			fileData.append(arc.toString(map) + "\n");
-		FileUtil.writeTo(Resources.MAPS_PATH + "test.csmap", fileData.toString());
-		System.out.println("Saved map");
+		FileUtil.writeTo(Resources.MAPS_PATH + "mostRecentMap.csmap", fileData.toString());
+		Sounds.SPRAY.forcePlay();
 	}
 	
 	private void loadMap() {
-		String data = FileUtil.readFrom(Resources.MAPS_PATH + "test.csmap");
+		String data = FileUtil.readFrom(Resources.MAPS_PATH + "mostRecentMap.csmap");
 		String[] dataSplit = data.split("\n\\$\n"); // matches newline $ newline
 		if(dataSplit.length != 2) {
 			Log.err("Loading map failed. 2 segments of map data expected. Got " + dataSplit.length + ". Map probably corrupted.");
