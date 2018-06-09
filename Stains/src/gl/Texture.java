@@ -1,7 +1,7 @@
 package gl;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.*;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL13.*;
 
 import java.awt.image.BufferedImage;
@@ -25,6 +25,8 @@ public class Texture extends Surface {
 	private float offsetX;
 	private float offsetY;
 	private float offsetRot;
+	
+	private static String localPath = "";
 	
 	//private ByteBuffer data; // NOTE: we may want to retain this bytebuffer so we can sample pixels if we wish
 	
@@ -58,12 +60,17 @@ public class Texture extends Surface {
 		this.offsetRot = 0;
 	}
 	
+	public static void setLocalPath(String path) {
+		Texture.localPath = path;
+	}
+	
 	public void loadImageToGL(String name) {
+		String fullLocalPath = Resources.TEXTURES_PATH + Texture.localPath;
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new File(Resources.TEXTURES_PATH + name));
+			image = ImageIO.read(new File(fullLocalPath + name));
 		} catch (IOException e) {
-			Log.err("Cannot open file: " + Resources.TEXTURES_PATH + name);
+			Log.err("Cannot open file: " + fullLocalPath + name);
 		}
 		
 		width = image.getWidth();

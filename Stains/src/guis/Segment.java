@@ -169,7 +169,7 @@ public class Segment {
 			nfe.printStackTrace();
 			return null;
 		}
-		return new Segment(values[0], values[1], values[2], values[3], EditorScreen.wallWidth, 250, 250, 250, 255);
+		return new Segment(values[0], values[1], values[2], values[3], EditorScreen.getInstance().WALL_WIDTH, 250, 250, 250, 255);
 	}
 	
 }

@@ -198,7 +198,7 @@ public class Arc {
 		}
 		if(t1 >= indexBuffer.size() || t2 >= indexBuffer.size())
 			throw new IllegalArgumentException("Index buffer does not contain correct tangents");
-		return new Arc(indexBuffer.get(t1), indexBuffer.get(t2), dist, EditorScreen.wallWidth, 250, 250, 250, 255);
+		return new Arc(indexBuffer.get(t1), indexBuffer.get(t2), dist, EditorScreen.getInstance().WALL_WIDTH, 250, 250, 250, 255);
 	}
 	
 }

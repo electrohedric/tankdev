@@ -22,6 +22,7 @@ import gl.Renderer;
 import guis.elements.Button;
 import guis.elements.RadioButton;
 import guis.elements.RadioButtonChannel;
+import objects.GameObject;
 import staindev.Game;
 import util.ClickListener;
 import util.Cursors;
@@ -35,7 +36,6 @@ import util.Music;
 public class EditorScreen extends Gui implements ClickListener {
 	
 	private static EditorScreen instance;
-	protected static float wallWidth = 3.0f;
 	
 	private Segment ghostWall;
 	private Dot ghostDot;
@@ -43,11 +43,13 @@ public class EditorScreen extends Gui implements ClickListener {
 	private List<Segment> map;
 	private List<Arc> fillets;
 	private Segment[] gridLines;
+	private GameObject spawnPoint;
 	
 	private Tool tool;
 	private boolean firstPointDown;
 	private int firstClickX;
 	private int firstClickY;
+	private boolean spawnPointFinalized;
 	
 	private boolean filletFirstSelection;
 	private boolean filletSelectingRadius;
@@ -55,11 +57,12 @@ public class EditorScreen extends Gui implements ClickListener {
 	private Segment intersecting;
 	
 	private int GRID_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, GRID_WIDTH, GRID_HEIGHT, GRID_MAX_X, GRID_MAX_Y;
+	protected float WALL_WIDTH;
 	
 	private EditorScreen() {
 		super(Textures.Editor.BG);
 		RadioButtonChannel toolsChannel = new RadioButtonChannel();
-		tool = Tool.SELECT; // could get overwritten if we select one, but just for safety
+		
  		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.8f, 1.0f, Textures.Editor.LINE, Mode.EDITOR, true, () -> {
  			firstPointDown = false;
 			tool = Tool.LINE;
@@ -73,6 +76,13 @@ public class EditorScreen extends Gui implements ClickListener {
 			tool = Tool.REMOVE;
 			setMousePointer(Cursors.CROSS);
 		}));
+		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.2f, 1.0f, Textures.Editor.SPAWNPOINT, Mode.EDITOR, true, () -> {
+			spawnPointFinalized = false;
+			tool = Tool.SPAWNPOINT;
+			setMousePointer(Cursors.POINTER);
+		}));
+		elements.get(0).select();
+		
 		elements.add(new Button(Game.WIDTH * 0.97f, Game.HEIGHT * 0.95f, 1.0f, Textures.Editor.SAVE, Mode.EDITOR, true, () -> {
 			saveMap();
 			if(Key.down(GLFW.GLFW_KEY_LEFT_SHIFT) || Key.down(GLFW.GLFW_KEY_RIGHT_SHIFT))
@@ -82,12 +92,17 @@ public class EditorScreen extends Gui implements ClickListener {
 			loadMap();
 		}));
 		
-		this.ghostWall = new Segment(0, 0, 0, 0, EditorScreen.wallWidth, 127, 127, 127, 255); // instantiate a wall with just a gray color
-		this.ghostDot = new Dot(0, 0, EditorScreen.wallWidth * 3, 127, 127, 127, 255);
-		this.ghostArc = new Arc(null, null, 0, EditorScreen.wallWidth, 60, 60, 60, 255);
+		WALL_WIDTH = 3.0f;
+		this.ghostWall = new Segment(0, 0, 0, 0, WALL_WIDTH, 127, 127, 127, 255); // instantiate a wall with just a gray color
+		this.ghostDot = new Dot(0, 0, WALL_WIDTH * 3, 127, 127, 127, 255);
+		this.ghostArc = new Arc(null, null, 0, WALL_WIDTH, 60, 60, 60, 255);
 		this.map = new ArrayList<>();
 		this.fillets = new ArrayList<>();
 		resetClicks();
+		
+		this.spawnPointFinalized = true;
+		this.spawnPoint = new GameObject(Game.WIDTH / 2, Game.HEIGHT / 2, 0, 1.0f, false);
+		spawnPoint.setActiveTexture(Textures.Editor.PLAYER_SPAWN);
 		
 		this.GRID_SIZE = 35;
 		this.GRID_OFFSET_X = 50;
@@ -161,6 +176,13 @@ public class EditorScreen extends Gui implements ClickListener {
 		case SELECT:
 			trySelect(0, 0, 0);
 			break;
+		case SPAWNPOINT:
+			if(!spawnPointFinalized) {
+				spawnPoint.x = Mouse.x;
+				spawnPoint.y = Mouse.y;
+			}
+			// TODO add limitations to coords
+			break;
 		}
 	}
 	
@@ -206,6 +228,7 @@ public class EditorScreen extends Gui implements ClickListener {
 					ghostDot.render();
 			}
 		}
+		spawnPoint.render();
 	}
 	
 	private int grid(int value, int interval) {
@@ -219,7 +242,7 @@ public class EditorScreen extends Gui implements ClickListener {
 			case FILLET:
 				if(button == Mouse.LEFT) {
 					if(filletSelectingRadius) {
-						fillets.add(new Arc(ghostArc.getTangent1(), ghostArc.getTangent2(), ghostArc.getDistance(), EditorScreen.wallWidth, 250, 250, 250, 255));
+						fillets.add(new Arc(ghostArc.getTangent1(), ghostArc.getTangent2(), ghostArc.getDistance(), WALL_WIDTH, 250, 250, 250, 255));
 						filletFirstSelection = false;
 						filletSelectingRadius = false;
 					} else if(intersecting != null) {
@@ -243,7 +266,7 @@ public class EditorScreen extends Gui implements ClickListener {
 					int clickY = mouseGridY();
 					if(!(clickX == firstClickX && clickY == firstClickY && firstPointDown)) { // don't do anything if starting point and ending point are the same
 						if(firstPointDown)
-							map.add(new Segment(firstClickX, firstClickY, clickX, clickY, EditorScreen.wallWidth, 250, 250, 250, 255)); // TODO no duplicate walls and no intersections. color red if these
+							map.add(new Segment(firstClickX, firstClickY, clickX, clickY, WALL_WIDTH, 250, 250, 250, 255)); // TODO no duplicate walls and no intersections. color red if these
 						firstClickX = clickX; // start next wall off where this one ended
 						firstClickY = clickY;
 						ghostWall.setStartPoint(firstClickX, firstClickY);
@@ -265,6 +288,9 @@ public class EditorScreen extends Gui implements ClickListener {
 			case SELECT:
 				
 				break;
+			case SPAWNPOINT:
+				spawnPointFinalized = true;
+				break;
 			}
 		}
 	}
@@ -281,7 +307,8 @@ public class EditorScreen extends Gui implements ClickListener {
 	}
 	
 	private void saveMapImage() {
-		FrameBufferRenderBuffer fbo = new FrameBufferRenderBuffer(1920, 1080); // TODO determine image size
+		FrameBufferRenderBuffer fbo = new FrameBufferRenderBuffer(1920, 1080); // TODO determine image size.
+		// TODO allow scrolling in editor somehow to create much larger levels. no larger than 34000px each dim on this computer
 		fbo.bind();
 		Renderer.setClearColor(0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT); // set background for temp fbo
@@ -291,12 +318,12 @@ public class EditorScreen extends Gui implements ClickListener {
 		for(Arc arc : fillets) {
 			arc.setWidth(renderWidth);
 			arc.render();
-			arc.setWidth(EditorScreen.wallWidth);
+			arc.setWidth(WALL_WIDTH);
 		}
 		for(Segment wall : map) {
 			wall.setWidth(renderWidth);
 			wall.render();
-			wall.setWidth(EditorScreen.wallWidth);
+			wall.setWidth(WALL_WIDTH);
 		}
 		
 		// save the fbo to a file
@@ -315,6 +342,8 @@ public class EditorScreen extends Gui implements ClickListener {
 	
 	private void saveMap() {
 		StringBuilder fileData = new StringBuilder();
+		fileData.append(String.format("%.1f, %.1f", spawnPoint.x, spawnPoint.y));
+		fileData.append("\n$\n");
 		for(Segment seg : map)
 			fileData.append(seg.toString() + "\n");
 		fileData.append("$\n");
@@ -324,18 +353,37 @@ public class EditorScreen extends Gui implements ClickListener {
 		Sounds.SPRAY.forcePlay();
 	}
 	
+	// NOTE when updating this method with new information. Copy and make a new function.
+	// name the old function loadMapOld#()
+	// TODO add functionality to load using old methods if newer ones fail. i.e. saved using old methods
 	private void loadMap() {
 		String data = FileUtil.readFrom(Resources.MAPS_PATH + "mostRecentMap.csmap");
+		if(!data.contains("$")) {
+			Log.err("Loading map failed. No map data.");
+			return;
+		}
 		String[] dataSplit = data.split("\n\\$\n"); // matches newline $ newline
-		if(dataSplit.length != 2) {
-			Log.err("Loading map failed. 2 segments of map data expected. Got " + dataSplit.length + ". Map probably corrupted.");
+		if(dataSplit.length != 3) {
+			Log.err("Loading map failed. 3 segments of map data expected. Got " + dataSplit.length + ". Map probably corrupted.");
 			return;
 		}
 		map.clear();
 		fillets.clear();
 		resetClicks();
-		String[] mapString = dataSplit[0].split("\n");
-		String[] filletString = dataSplit[1].split("\n");
+		String[] spawnString = dataSplit[0].split("\n");
+		String[] mapString = dataSplit[1].split("\n");
+		String[] filletString = dataSplit[2].split("\n");
+		if(spawnString.length != 1) {
+			Log.err("Spawn string: too much data");
+			return;
+		}
+		String[] spawnCoordsString = spawnString[0].split(",");
+		if(spawnCoordsString.length != 2) {
+			Log.err("Spawn coord string: data not in correct format");
+			return;
+		}
+		spawnPoint.x = Float.valueOf(spawnCoordsString[0]);
+		spawnPoint.y = Float.valueOf(spawnCoordsString[1]); // TODO make functions to load and retrieve formats of data. e.g. saveData(%.1f, %.1f), loadData(%f, %f)
 		for(String s : mapString)
 			if(!s.equals(""))
 				map.add(Segment.fromString(s));
@@ -356,7 +404,7 @@ public class EditorScreen extends Gui implements ClickListener {
 
 	
 	private static enum Tool {
-		SELECT, LINE, FILLET, REMOVE
+		SELECT, LINE, FILLET, REMOVE, SPAWNPOINT;
 	}
 	
 }

@@ -15,10 +15,13 @@ public class Textures {
 	public static Animation KETCHUP_DEATH;
 	
 	public static void init() {
-		PLAYER = new Texture("player/alive.png", 98, 107, 1);                            
-		KETCHUP_ALIVE = new Texture("stains/ketchup/alive.png", 33, 25, 1);              
-		KETCHUP_DEATH = new Animation("stains/ketchup/frame<4>.png", 24, 1, 33, 25, 1);
+		Texture.setLocalPath("player/");
+			PLAYER = new Texture("alive.png", 98, 107, 1);
 		
+		Texture.setLocalPath("stains/ketchup/");
+			KETCHUP_ALIVE = new Texture("alive.png", 33, 25, 1);
+			KETCHUP_DEATH = new Animation("frame<4>.png", 24, 1, 33, 25, 1);
+			
 		Title.init();
 		Editor.init();
 	}
@@ -32,25 +35,29 @@ public class Textures {
 		public static Texture BG, CONTINUE, NEWGAME, SETTINGS, EDITOR,  QUIT;
 		
 		private static void init() {
-			  BG = new Texture("guis/title/bg.png");
-			  CONTINUE = new Texture("guis/title/continue.png");
-			  NEWGAME = new Texture("guis/title/newgame.png");
-			  SETTINGS = new Texture("guis/title/settings.png");
-			  EDITOR = new Texture("guis/title/editor.png");
-			  QUIT = new Texture("guis/title/quit.png");
+			Texture.setLocalPath("guis/title/");
+				BG = new Texture("bg.png");
+				CONTINUE = new Texture("continue.png");
+				NEWGAME = new Texture("newgame.png");
+				SETTINGS = new Texture("settings.png");
+				EDITOR = new Texture("editor.png");
+				QUIT = new Texture("quit.png");
 		}
 	}
 	
 	public static class Editor {
-		public static Texture BG, LINE, FILLET, REMOVE, SAVE, LOAD;
+		public static Texture BG, LINE, FILLET, REMOVE, SAVE, LOAD, SPAWNPOINT, PLAYER_SPAWN;
 		
 		private static void init() {
-			BG = new Texture("guis/editor/bg.png");
-			LINE = new Texture("guis/editor/line.png");
-			FILLET = new Texture("guis/editor/fillet.png");
-			REMOVE = new Texture("guis/editor/remove.png");
-			SAVE = new Texture("guis/editor/save.png");
-			LOAD = new Texture("guis/editor/load.png");
+			Texture.setLocalPath("guis/editor/");
+				BG = new Texture("bg.png");
+				LINE = new Texture("line.png");
+				FILLET = new Texture("fillet.png");
+				REMOVE = new Texture("remove.png");
+				SAVE = new Texture("save.png");
+				LOAD = new Texture("load.png");
+				SPAWNPOINT = new Texture("spawnpoint.png");
+				PLAYER_SPAWN = new Texture("player_spawn.png");
 		}
 	}
 }
