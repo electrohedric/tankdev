@@ -7,7 +7,7 @@ import staindev.Game;
 public class Screen extends GameObject {
 
 	public Screen(Surface texture, float x, float y, float scale) {
-		super(x, y, 0, scale, false);
+		super(x, y, 0, scale);
 		setActiveTexture(texture);
 	}
 	

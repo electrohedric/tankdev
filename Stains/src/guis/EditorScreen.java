@@ -24,6 +24,7 @@ import guis.elements.RadioButton;
 import guis.elements.RadioButtonChannel;
 import objects.GameObject;
 import staindev.Game;
+import util.Camera;
 import util.ClickListener;
 import util.Cursors;
 import util.FileUtil;
@@ -50,13 +51,18 @@ public class EditorScreen extends Gui implements ClickListener {
 	private int firstClickX;
 	private int firstClickY;
 	private boolean spawnPointFinalized;
-	
 	private boolean filletFirstSelection;
 	private boolean filletSelectingRadius;
 	
+	private boolean scrollingScreen;
+	private int lastMouseX;
+	private int lastMouseY;
+	private long lastCursor;
+	protected Camera camera;
+	
 	private Segment intersecting;
 	
-	private int GRID_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, GRID_WIDTH, GRID_HEIGHT, GRID_MAX_X, GRID_MAX_Y;
+	private int GRID_SIZE, GRID_WIDTH, GRID_HEIGHT, GRID_MAX_X, GRID_MAX_Y;
 	protected float WALL_WIDTH;
 	
 	private EditorScreen() {
@@ -92,6 +98,8 @@ public class EditorScreen extends Gui implements ClickListener {
 			loadMap();
 		}));
 		
+		this.camera = new Camera(0, 0);
+		
 		WALL_WIDTH = 3.0f;
 		this.ghostWall = new Segment(0, 0, 0, 0, WALL_WIDTH, 127, 127, 127, 255); // instantiate a wall with just a gray color
 		this.ghostDot = new Dot(0, 0, WALL_WIDTH * 3, 127, 127, 127, 255);
@@ -101,23 +109,22 @@ public class EditorScreen extends Gui implements ClickListener {
 		resetClicks();
 		
 		this.spawnPointFinalized = true;
-		this.spawnPoint = new GameObject(Game.WIDTH / 2, Game.HEIGHT / 2, 0, 1.0f, false);
+		this.spawnPoint = new GameObject(Game.WIDTH / 2, Game.HEIGHT / 2, 0, 1.0f);
 		spawnPoint.setActiveTexture(Textures.Editor.PLAYER_SPAWN);
 		
 		this.GRID_SIZE = 35;
-		this.GRID_OFFSET_X = 50;
-		this.GRID_OFFSET_Y = 30;
-		this.GRID_WIDTH = 45;
-		this.GRID_HEIGHT = 30;
+		this.GRID_WIDTH = 100;
+		this.GRID_HEIGHT = 60;
 		this.gridLines = new Segment[GRID_WIDTH + GRID_HEIGHT];
-		this.GRID_MAX_X = GRID_OFFSET_X + (GRID_WIDTH - 1) * GRID_SIZE;
-		this.GRID_MAX_Y = GRID_OFFSET_Y + (GRID_HEIGHT - 1) * GRID_SIZE;
+		this.GRID_MAX_X = (GRID_WIDTH - 1) * GRID_SIZE;
+		this.GRID_MAX_Y = (GRID_HEIGHT - 1) * GRID_SIZE;
 		
+		// TODO grid possibly more effecient rendering?
 		float gridline_width = 1.0f;
 		for(int c = 0; c < GRID_WIDTH; c++)
-			gridLines[c] = new Segment(c * GRID_SIZE + GRID_OFFSET_X, GRID_OFFSET_Y, c * GRID_SIZE + GRID_OFFSET_X, GRID_MAX_Y, gridline_width, 0, 0, 50, 255);
+			gridLines[c] = new Segment(c * GRID_SIZE, 0, c * GRID_SIZE, GRID_MAX_Y, gridline_width, 0, 0, 50, 255);
 		for(int r = 0; r < GRID_HEIGHT; r++)
-			gridLines[GRID_WIDTH + r] = new Segment(GRID_OFFSET_X, r * GRID_SIZE + GRID_OFFSET_Y, GRID_MAX_X, r * GRID_SIZE + GRID_OFFSET_Y, gridline_width, 0, 0, 50, 255);
+			gridLines[GRID_WIDTH + r] = new Segment(0, r * GRID_SIZE, GRID_MAX_X, r * GRID_SIZE, gridline_width, 0, 0, 50, 255);
 		
 		ClickListener.addToCallback(this, Mode.EDITOR);
 		instance = this;
@@ -139,11 +146,31 @@ public class EditorScreen extends Gui implements ClickListener {
 	}
 	
 	private int mouseGridX() {
-		return grid(Mouse.x - GRID_OFFSET_X, GRID_SIZE) + GRID_OFFSET_X;
+		return grid(camera.getMouseX(), GRID_SIZE);
 	}
 	
 	private int mouseGridY() {
-		return grid(Mouse.y - GRID_OFFSET_Y, GRID_SIZE) + GRID_OFFSET_Y;
+		return grid(camera.getMouseY(), GRID_SIZE);
+	}
+	
+	/**
+	 * Attempts to select a segment and colors it according to r,g,b if found. Sets <code>interesting</code> if found
+	 */
+	private void trySelect(int r, int g, int b) {
+		if(intersecting != null)
+			intersecting.resetColor();
+		float bestAccuracy = 1.0f; // 1.0f == worst possible
+		for(Segment wall : map) {
+			float accuracy = wall.intersectsPoint(camera.getMouseX(), camera.getMouseY());
+			if(accuracy < bestAccuracy) {
+				bestAccuracy = accuracy;
+				intersecting = wall;
+			}
+		}
+		if(bestAccuracy < 0.005f)  // if accuracy better than 0.5%, we've got an intersection
+			intersecting.setColor(r, g, b, 255); // reset prior intersecting wall's color
+		else
+			intersecting = null;
 	}
 	
 	@Override
@@ -171,61 +198,49 @@ public class EditorScreen extends Gui implements ClickListener {
 			}
 			break;
 		case REMOVE:
-			trySelect(200, 50, 50);  // redish
+			trySelect(200, 50, 50);  // red-ish
 			break;
 		case SELECT:
 			trySelect(0, 0, 0);
 			break;
 		case SPAWNPOINT:
 			if(!spawnPointFinalized) {
-				spawnPoint.x = Mouse.x;
-				spawnPoint.y = Mouse.y;
+				spawnPoint.x = camera.getMouseX();
+				spawnPoint.y = camera.getMouseY();
 			}
 			// TODO add limitations to coords
 			break;
 		}
-	}
-	
-	/**
-	 * Attempts to select a segment and colors it according to r,g,b if found. Sets <code>interesting</code> if found
-	 */
-	private void trySelect(int r, int g, int b) {
-		if(intersecting != null)
-			intersecting.resetColor();
-		float bestAccuracy = 1.0f; // 1.0f == worst possible
-		for(Segment wall : map) {
-			float accuracy = wall.intersectsPoint(Mouse.x, Mouse.y);
-			if(accuracy < bestAccuracy) {
-				bestAccuracy = accuracy;
-				intersecting = wall;
-			}
+		if(scrollingScreen) {
+			int dx = Mouse.x - lastMouseX;
+			int dy = Mouse.y - lastMouseY;
+			camera.x -= dx;
+			camera.y -= dy;
+			lastMouseX = Mouse.x;
+			lastMouseY = Mouse.y;
 		}
-		if(bestAccuracy < 0.005f)  // if accuracy better than 0.5%, we've got an intersection
-			intersecting.setColor(r, g, b, 255); // reset prior intersecting wall's color
-		else
-			intersecting = null;
 	}
 	
 	@Override
 	public void render() {
 		super.render();
 		for(Segment gridLine : gridLines)
-			gridLine.render();
+			gridLine.render(camera);
 		for(Arc arc : fillets)
-			arc.render();
+			arc.render(camera);
 		if(tool == Tool.FILLET) {
 			if(filletSelectingRadius) {
-				ghostArc.render();
+				ghostArc.render(camera);
 			}
 		}
 		for(Segment wall : map)
-			wall.render();
+			wall.render(camera);
 		if(tool == Tool.LINE) { // we only need extra rendering for the line tool
 			if(isOnMap()) {
 				if(firstPointDown)
-					ghostWall.render();
+					ghostWall.render(camera);
 				else
-					ghostDot.render();
+					ghostDot.render(camera);
 			}
 		}
 		spawnPoint.render();
@@ -292,23 +307,46 @@ public class EditorScreen extends Gui implements ClickListener {
 				spawnPointFinalized = true;
 				break;
 			}
+			if(button == Mouse.MIDDLE) { 
+				scrollingScreen = true;
+				lastMouseX = Mouse.x;
+				lastMouseY = Mouse.y;
+				lastCursor = getMousePointer();
+				setMousePointer(Cursors.HAND);
+			}
+			// TODO future: allow zooming for convenience
+		}
+	}
+	
+	@Override
+	public void handleRelease(int button) {
+		if(button == Mouse.MIDDLE) {
+			setMousePointer(lastCursor);
+			scrollingScreen = false;
 		}
 	}
 	
 	private boolean isOnMap() {
 		int gx = mouseGridX();
 		int gy = mouseGridY();
-		return gx >= GRID_OFFSET_X && gx <= GRID_MAX_X && gy >= GRID_OFFSET_Y && gy <= GRID_MAX_Y;
+		return gx >= 0 && gx <= GRID_MAX_X && gy >= 0 && gy <= GRID_MAX_Y;
 	}
 	
-	@Override
-	public void handleRelease(int button) {
-		
-	}
 	
 	private void saveMapImage() {
-		FrameBufferRenderBuffer fbo = new FrameBufferRenderBuffer(1920, 1080); // TODO determine image size.
-		// TODO allow scrolling in editor somehow to create much larger levels. no larger than 34000px each dim on this computer
+		float minX = spawnPoint.x;
+		float maxX = minX;
+		float minY = spawnPoint.y;
+		float maxY = minY;
+		for(Segment seg : map) {
+			minX = Math.min(minX, Math.min(seg.getX1(), seg.getX2()));
+			maxX = Math.max(maxX, Math.max(seg.getX1(), seg.getX2()));
+			minY = Math.min(minY, Math.min(seg.getY1(), seg.getY2()));
+			maxY = Math.max(maxY, Math.max(seg.getY1(), seg.getY2()));
+		}
+		int width = (int) (maxX - minX) + 1;
+		int height = (int) (maxY - minY) + 1; // TODO is this finished?
+		FrameBufferRenderBuffer fbo = new FrameBufferRenderBuffer(width, height);
 		fbo.bind();
 		Renderer.setClearColor(0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT); // set background for temp fbo
@@ -317,14 +355,18 @@ public class EditorScreen extends Gui implements ClickListener {
 		float renderWidth = 1.2f;
 		for(Arc arc : fillets) {
 			arc.setWidth(renderWidth);
-			arc.render();
+			arc.render(Game.nullCamera);
 			arc.setWidth(WALL_WIDTH);
 		}
 		for(Segment wall : map) {
 			wall.setWidth(renderWidth);
-			wall.render();
+			wall.render(Game.nullCamera);
 			wall.setWidth(WALL_WIDTH);
 		}
+		
+		spawnPoint.scale = 0.5f;
+		spawnPoint.render();
+		spawnPoint.scale = 1.0f;
 		
 		// save the fbo to a file
 		BufferedImage img = fbo.readPixels();
@@ -397,7 +439,7 @@ public class EditorScreen extends Gui implements ClickListener {
 	public void switchTo() {
 		Game.mode = Mode.EDITOR;
 		Music.transition(1.0f, () -> {
-			Music.queueLoop(Sounds.EDITOR_LOOP); // TODO new loop plz
+			Music.queueLoop(Sounds.EDITOR_LOOP); // TODO new music loop plz
 			Music.play();
 		});
 	}

@@ -8,11 +8,13 @@ import static org.lwjgl.glfw.GLFW.*;
 import gl.Texture;
 import guis.elements.Button;
 import staindev.Game;
+import util.Cursors;
 
 public abstract class Gui {
 
 	Screen background;
 	List<Button> elements; // TODO should be an element list for elements, not just buttons
+	private static long currentCursor = Cursors.POINTER;
 	
 	public Gui(Texture background) {
 		this.background = new Screen(background);
@@ -30,8 +32,12 @@ public abstract class Gui {
 			b.render();
 	}
 	
-	protected void setMousePointer(long cursor) {
+	protected static void setMousePointer(long cursor) {
 		glfwSetCursor(Game.window, cursor);
+	}
+	
+	protected static long getMousePointer() {
+		return currentCursor;
 	}
 	
 	public abstract void switchTo();

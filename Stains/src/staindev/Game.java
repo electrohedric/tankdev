@@ -23,6 +23,7 @@ import objects.Line;
 import objects.Point;
 import objects.Rect;
 import util.Animation;
+import util.Camera;
 import util.ClickListener;
 import util.Cursors;
 import util.Log;
@@ -39,6 +40,7 @@ public class Game {
 	public static float delta = 0.0f;
 	public static Mode mode = Mode.PAUSED;
 	public static Matrix4f proj = new Matrix4f(); // can't instantiate until WIDTH and HEIGHT are set
+	public static Camera nullCamera = new Camera(0, 0);
 	
 	public static void main(String[] args) {
 		Log.log("LWJGL version " + Version.getVersion());

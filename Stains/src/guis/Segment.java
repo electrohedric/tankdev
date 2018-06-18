@@ -10,6 +10,7 @@ import constants.Shaders;
 import gl.Shader;
 import objects.Line;
 import staindev.Game;
+import util.Camera;
 
 //TODO make this implement a Renderable class which has the matrices, program, slot, x, and y set up, and render() abstract method
 public class Segment {
@@ -62,13 +63,13 @@ public class Segment {
 		this.program = Shaders.COLOR;
 	}
 
-	public void render() {
+	public void render(Camera camera) {
 		program.bind();
 		Line.bind(); // binds the VAO
 		program.set("u_Color", color);
 		// scale to length, rotate, then translate
 		proj.set(Game.proj);
-		model = model.translation(x, y, 0).rotate(rot, 0.0f, 0.0f, 1.0f).scale(length, length, 1.0f);
+		model = model.translation(x - camera.x, y - camera.y, 0).rotate(rot, 0.0f, 0.0f, 1.0f).scale(length, length, 1.0f);
 		mvp = proj.mul(model); // M x V x P
 		program.set("u_MVP", mvp);
 		glLineWidth(width);
@@ -147,6 +148,22 @@ public class Segment {
 		return rot;
 	}
 	
+	public float getX1() {
+		return x;
+	}
+
+	public float getY1() {
+		return y;
+	}
+
+	public float getX2() {
+		return x2;
+	}
+
+	public float getY2() {
+		return y2;
+	}
+
 	/**
 	 * @return String to be loaded with <code>fromString()</code>
 	 */

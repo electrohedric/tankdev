@@ -5,6 +5,7 @@ import java.util.List;
 
 import objects.GameObject;
 import staindev.Game;
+import util.Camera;
 
 public abstract class Entity extends GameObject {
 	
@@ -28,13 +29,20 @@ public abstract class Entity extends GameObject {
 	 * @param vy initial velocity in the y direction
 	 * @param rot initial rotation, in radians
 	 * @param scale initial scale based on actual texture size (i.e. <code>1.0f</code> is 1:1 scale with texture)
-	 * @param playerOffset <code>true</code> if the render should be displayed in relation to the player
+	 * @param camera {@link Camera} to which the object is rendered with respect to
 	 */
-	public Entity(float x, float y, float vx, float vy, float rot, float scale, boolean playerOffset) {
-		super(x, y, rot, scale, playerOffset);
+	public Entity(float x, float y, float vx, float vy, float rot, float scale, Camera camera) {
+		super(x, y, rot, scale, camera);
 //		this.vx = vx;
 //		this.vy = vy;
 		list.add(this);
+	}
+	
+	/**
+	 * Creates an entity that has no camera
+	 */
+	public Entity(float x, float y, float vx, float vy, float rot, float scale) {
+		this(x, y, vx, vy, rot, scale, null);
 	}
 	
 	/** Let the subclass define how to update itself */

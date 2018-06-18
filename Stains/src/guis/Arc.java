@@ -6,6 +6,8 @@ import java.util.List;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import util.Camera;
+
 public class Arc {
 
 	private List<Segment> segments;
@@ -108,13 +110,13 @@ public class Arc {
 		}
 	}
 	
-	public void render() {
+	public void render(Camera camera) {
 		if(altered) {
 			generateSegments();
 			altered = false;
 		}
 		for(Segment seg : segments)
-			seg.render();
+			seg.render(camera);
 	}
 	
 	public void setTangent1(Segment tangent1) {

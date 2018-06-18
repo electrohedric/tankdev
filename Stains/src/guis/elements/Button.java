@@ -26,7 +26,7 @@ public class Button extends GameObject implements ClickListener {
 	 * @param callback {@link Runnable} function to call when pressed
 	 */
 	public Button(float x, float y, float scale, Texture texture, Mode screen, boolean feedback, Runnable callback) {
-		super(x, y, 0, scale, false);
+		super(x, y, 0, scale);
 		this.width = texture.getWidth();
 		this.height = texture.getHeight();
 		this.mouseHovered = false;

@@ -9,6 +9,7 @@ import constants.Shaders;
 import gl.Shader;
 import objects.Point;
 import staindev.Game;
+import util.Camera;
 
 public class Dot {
 	
@@ -39,13 +40,13 @@ public class Dot {
 		this.program = Shaders.COLOR;
 	}
 
-	public void render() {
+	public void render(Camera camera) {
 		program.bind();
 		Point.bind(); // binds the VAO
 		program.set("u_Color", color);
 		// just translate
 		proj.set(Game.proj);
-		model = model.translation(x + 0.5f, y, 0);
+		model = model.translation(x + 0.5f - camera.x, y - camera.y, 0);
 		mvp = proj.mul(model); // M x V x P
 		program.set("u_MVP", mvp);
 		glPointSize(size);

@@ -7,6 +7,7 @@ import constants.Sounds;
 import constants.Textures;
 import gl.Texture;
 import staindev.Game;
+import util.Camera;
 import util.ClickListener;
 import util.Key;
 import util.Mouse;
@@ -16,9 +17,10 @@ public class Player extends Entity implements ClickListener {
 	
 	/** The player. For now, there is only one player as multiplayer support not implemented */
 	private static Player instance;
+	public static Camera camera;
 	
-	public Player(float x, float y, float scale, Texture texture) {
-		super(x, y, 0, 0, 0, scale, true);
+	public Player(float x, float y, float scale, Texture texture, Camera camera) {
+		super(x, y, 0, 0, 0, scale, camera);
 		this.moveSpeed = 200;
 		this.setActiveTexture(texture);
 		ClickListener.addToCallback(this, Mode.PLAY);
@@ -28,8 +30,10 @@ public class Player extends Entity implements ClickListener {
 	public static Player getInstance() {
 		if(instance != null)
 			return instance;
-		else
-			return new Player(500, 500, 0.4f, Textures.PLAYER);
+		else {
+			camera = new Camera(0, 0);
+			return new Player(500, 500, 0.4f, Textures.PLAYER, Player.camera);
+		}
 	}
 
 	@Override
