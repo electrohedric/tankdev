@@ -18,7 +18,7 @@ public class Stain extends Entity implements ClickListener {
 	Animation deathAnimation;
 	
 	public Stain(float x, float y, float scale, Texture aliveTexture, Animation deathAnimation) {
-		super(x, y, 0.0f, 0.0f, 0.0f, scale, Player.camera);
+		super(x, y, 0.0f, 0.0f, 0.0f, scale);
 		this.moveSpeed = 20.0f; // pixels / second
 		this.aliveTexture = aliveTexture;
 		this.deathAnimation = deathAnimation;

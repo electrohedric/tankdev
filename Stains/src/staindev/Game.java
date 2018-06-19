@@ -15,6 +15,7 @@ import constants.Shaders;
 import constants.Sounds;
 import constants.Textures;
 import entities.Entity;
+import entities.Player;
 import entities.Stain;
 import gl.Renderer;
 import guis.EditorScreen;
@@ -40,6 +41,7 @@ public class Game {
 	public static float delta = 0.0f;
 	public static Mode mode = Mode.PAUSED;
 	public static Matrix4f proj = new Matrix4f(); // can't instantiate until WIDTH and HEIGHT are set
+	public static Matrix4f projSave = new Matrix4f();
 	public static Camera nullCamera = new Camera(0, 0);
 	
 	public static void main(String[] args) {
@@ -123,6 +125,7 @@ public class Game {
 		Line.init();
 		Point.init();
 		proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
+		projSave = new Matrix4f(proj);
 	}
 	
 	public static void checkError() {
@@ -141,7 +144,7 @@ public class Game {
 	public static void clearError() {
 		while(glGetError() != 0) {} // just loop until error is 0
 	}
-
+	
 	private static void loop() {
 		// Set the clear color
 		Renderer.setClearColor(0, 0, 0);
@@ -195,6 +198,10 @@ public class Game {
 		Point.destroy();
 	}
 	
+	public static void restoreProj() {
+		Game.proj = projSave;
+	}
+	
 	public static void updateGame() {
 		Mouse.getUpdate(); // poll mouse movement
 		glfwPollEvents(); // poll keypress/click events
@@ -243,7 +250,7 @@ public class Game {
 		case PLAY:
 			
 			for(Entity e : Entity.list)
-				e.render();
+				e.render(Player.getInstance().getCamera());
 			break;
 		case TITLE:
 			TitleScreen.instance.render();

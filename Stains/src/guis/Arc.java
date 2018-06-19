@@ -6,6 +6,7 @@ import java.util.List;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 
+import staindev.Game;
 import util.Camera;
 
 public class Arc {
@@ -110,6 +111,10 @@ public class Arc {
 		}
 	}
 	
+	/**
+	 * Renders this arc to the screen using a camera
+	 * @param camera
+	 */
 	public void render(Camera camera) {
 		if(altered) {
 			generateSegments();
@@ -117,6 +122,13 @@ public class Arc {
 		}
 		for(Segment seg : segments)
 			seg.render(camera);
+	}
+	
+	/**
+	 * Renders this arc to the screen using absolute positioning
+	 */
+	public void render() {
+		render(Game.nullCamera);
 	}
 	
 	public void setTangent1(Segment tangent1) {
@@ -180,7 +192,7 @@ public class Arc {
 				index2 = i;
 		}
 		if(index1 == -1 || index2 == -1)
-			throw new IllegalArgumentException("IndexBuffer does not contain tangents");
+			return null; // index buffer does not contain needed tangents
 		return String.format("%d,%d,%.2f", index1, index2, distance);
 	}
 	

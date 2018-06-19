@@ -63,6 +63,10 @@ public class Segment {
 		this.program = Shaders.COLOR;
 	}
 
+	/**
+	 * Renders this segment to the screen using a camera
+	 * @param camera
+	 */
 	public void render(Camera camera) {
 		program.bind();
 		Line.bind(); // binds the VAO
@@ -74,6 +78,13 @@ public class Segment {
 		program.set("u_MVP", mvp);
 		glLineWidth(width);
 		glDrawElements(GL_LINES, Line.ibo.length, GL_UNSIGNED_INT, 0);
+	}
+	
+	/**
+	 * Renders this segment to the screen using absolute positioning
+	 */
+	public void render() {
+		render(Game.nullCamera);
 	}
 	
 	public void setStartPoint(float x1, float y1) {

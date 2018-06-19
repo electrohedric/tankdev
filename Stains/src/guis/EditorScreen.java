@@ -243,7 +243,7 @@ public class EditorScreen extends Gui implements ClickListener {
 					ghostDot.render(camera);
 			}
 		}
-		spawnPoint.render();
+		spawnPoint.render(camera);
 	}
 	
 	private int grid(int value, int interval) {
@@ -344,10 +344,14 @@ public class EditorScreen extends Gui implements ClickListener {
 			minY = Math.min(minY, Math.min(seg.getY1(), seg.getY2()));
 			maxY = Math.max(maxY, Math.max(seg.getY1(), seg.getY2()));
 		}
-		int width = (int) (maxX - minX) + 1;
-		int height = (int) (maxY - minY) + 1; // TODO is this finished?
+		int bufferX = 40;
+		int bufferY = 30;
+		int width = (int) (maxX - minX) + bufferX * 2;
+		int height = (int) (maxY - minY) + 1 + bufferY * 2; // TODO is this finished? answer: no. weird offset issue
+		
+		Camera fboCam = new Camera(minX - bufferX, minY - bufferY);
 		FrameBufferRenderBuffer fbo = new FrameBufferRenderBuffer(width, height);
-		fbo.bind();
+		fbo.activate();// render to the renderbuffer instead of the default fbo for displaying
 		Renderer.setClearColor(0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT); // set background for temp fbo
 		
@@ -355,22 +359,22 @@ public class EditorScreen extends Gui implements ClickListener {
 		float renderWidth = 1.2f;
 		for(Arc arc : fillets) {
 			arc.setWidth(renderWidth);
-			arc.render(Game.nullCamera);
+			arc.render(fboCam);
 			arc.setWidth(WALL_WIDTH);
 		}
 		for(Segment wall : map) {
 			wall.setWidth(renderWidth);
-			wall.render(Game.nullCamera);
+			wall.render(fboCam);
 			wall.setWidth(WALL_WIDTH);
 		}
 		
 		spawnPoint.scale = 0.5f;
-		spawnPoint.render();
+		spawnPoint.render(fboCam);
 		spawnPoint.scale = 1.0f;
 		
 		// save the fbo to a file
 		BufferedImage img = fbo.readPixels();
-		fbo.unbind();
+		
 		String name = "mostRecentMap.png";
 		try {
 		    ImageIO.write(img, "png", new File(Resources.MAPS_PATH + name));
@@ -378,21 +382,34 @@ public class EditorScreen extends Gui implements ClickListener {
 			Log.err("Cannot write to file: " + Resources.MAPS_PATH + name);
 			e.printStackTrace();
 		}
+		fbo.deactivate(); // restore
 		fbo.delete();
 		Sounds.SCARY.forcePlay();
 	}
 	
 	private void saveMap() {
+		String fileName = "mostRecentMap.csmap";
 		StringBuilder fileData = new StringBuilder();
-		fileData.append(String.format("%.1f, %.1f", spawnPoint.x, spawnPoint.y));
-		fileData.append("\n$\n");
+		fileData.append("SPAWN\n");
+		fileData.append(String.format("%.1f, %.1f\n", spawnPoint.x, spawnPoint.y));
+		fileData.append("MAP\n");
 		for(Segment seg : map)
 			fileData.append(seg.toString() + "\n");
-		fileData.append("$\n");
-		for(Arc arc : fillets)
-			fileData.append(arc.toString(map) + "\n");
-		FileUtil.writeTo(Resources.MAPS_PATH + "mostRecentMap.csmap", fileData.toString());
-		Sounds.SPRAY.forcePlay();
+		fileData.append("FILLETS\n");
+		for(Arc arc : fillets) {
+			String arcString = arc.toString(map);
+			if(arcString != null)
+				fileData.append(arcString + "\n");
+			else {
+				Sounds.LEMON.play();
+				return;
+			}
+		}
+		fileData.append("END\n");
+		
+		FileUtil.writeTo(Resources.MAPS_PATH + fileName, fileData.toString());
+		Sounds.SPRAY.forcePlay(); // XXX this needs to change
+		Log.log("Saved map as " + fileName);
 	}
 	
 	// NOTE when updating this method with new information. Copy and make a new function.
@@ -400,36 +417,34 @@ public class EditorScreen extends Gui implements ClickListener {
 	// TODO add functionality to load using old methods if newer ones fail. i.e. saved using old methods
 	private void loadMap() {
 		String data = FileUtil.readFrom(Resources.MAPS_PATH + "mostRecentMap.csmap");
-		if(!data.contains("$")) {
-			Log.err("Loading map failed. No map data.");
-			return;
-		}
-		String[] dataSplit = data.split("\n\\$\n"); // matches newline $ newline
-		if(dataSplit.length != 3) {
-			Log.err("Loading map failed. 3 segments of map data expected. Got " + dataSplit.length + ". Map probably corrupted.");
-			return;
-		}
+		int spawnIndexBegin = data.indexOf("SPAWN\n") + 6; //  XXX this is all temporary until we get format classes done
+		int spawnIndexEnd = data.indexOf("MAP\n");
+		int pointsIndexBegin = spawnIndexEnd + 4;
+		int pointsIndexEnd = data.indexOf("FILLETS\n");
+		int filletsIndexBegin = pointsIndexEnd + 8;
+		int filletsIndexEnd = data.indexOf("END\n");
+		
 		map.clear();
 		fillets.clear();
 		resetClicks();
-		String[] spawnString = dataSplit[0].split("\n");
-		String[] mapString = dataSplit[1].split("\n");
-		String[] filletString = dataSplit[2].split("\n");
-		if(spawnString.length != 1) {
-			Log.err("Spawn string: too much data");
-			return;
-		}
-		String[] spawnCoordsString = spawnString[0].split(",");
+		
+		String spawnString = data.substring(spawnIndexBegin, spawnIndexEnd);
+		String[] mapArray = data.substring(pointsIndexBegin, pointsIndexEnd).split("\n");
+		String[] filletArray = data.substring(filletsIndexBegin, filletsIndexEnd).split("\n");
+		
+		String[] spawnCoordsString = spawnString.split(",");
 		if(spawnCoordsString.length != 2) {
-			Log.err("Spawn coord string: data not in correct format");
+			Log.err("Error parsing section I");
 			return;
 		}
 		spawnPoint.x = Float.valueOf(spawnCoordsString[0]);
 		spawnPoint.y = Float.valueOf(spawnCoordsString[1]); // TODO make functions to load and retrieve formats of data. e.g. saveData(%.1f, %.1f), loadData(%f, %f)
-		for(String s : mapString)
+		
+		for(String s : mapArray)
 			if(!s.equals(""))
 				map.add(Segment.fromString(s));
-		for(String s : filletString)
+		
+		for(String s : filletArray)
 			if(!s.equals(""))
 				fillets.add(Arc.fromString(s, map));
 		

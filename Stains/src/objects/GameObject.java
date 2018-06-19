@@ -25,7 +25,6 @@ public class GameObject {
 	private int slot;
 	private Shader program;
 	private Surface activeTexture;
-	private Camera camera;
 	
 	// Preallocations
 	private Matrix4f proj = new Matrix4f();
@@ -38,9 +37,8 @@ public class GameObject {
 	 * @param y Initial Y
 	 * @param rot Initial rotation, in radians
 	 * @param scale Initial scale from actual size
-	 * @param camera {@link Camera} to which the object is rendered with respect to
 	 */
-	public GameObject(float x, float y, float rot, float scale, Camera camera) {
+	public GameObject(float x, float y, float rot, float scale) {
 		this.x = x;
 		this.y = y;
 		this.rot = rot;
@@ -49,24 +47,13 @@ public class GameObject {
 		this.slot = 0;
 		this.program = Shaders.TEXTURE;
 		this.activeTexture = null;
-		if(camera == null)
-			this.camera = Game.nullCamera;
-		else
-			this.camera = camera;
-	}
-	
-	/**
-	 * Initializes a GameObject with no camera. (i.e. absolute positioning)
-	 */
-	public GameObject(float x, float y, float rot, float scale) {
-		this(x, y, rot, scale, null);
 	}
 	
 	/** 
 	 * Renders the <code>activeTexture</code> to the screen using its properties and this <code>GameObject</code>'s position.
 	 * <code>null</code> is a valid <code>activeTexture</code> which renders nothing.
 	 * */
-	public void render() {
+	public void render(Camera camera) {
 		if(activeTexture != null) {
 			program.bind();
 			activeTexture.bind(slot);
@@ -87,6 +74,13 @@ public class GameObject {
 			
 			glDrawElements(GL_TRIANGLES, Rect.ibo.length, GL_UNSIGNED_INT, 0);
 		}
+	}
+	
+	/**
+	 * Renders using absolute positioning
+	 */
+	public void render() {
+		render(Game.nullCamera);
 	}
 
 	public void setActiveTexture(Surface activeTexture) {
