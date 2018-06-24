@@ -42,7 +42,7 @@ public class Arc {
 	 * and passes through a point <em>distance</em> away from the corner. Radius is not guarenteed until
 	 * this method is run, whether called explicitly or run by <code>render()</code>
 	 */
-	public void generateSegments() { // wrote this myself. wanted to die // TODO maybe possibly enforce limit on radius so it cant span further than the smallest line
+	public void generateSegments() { // wrote this myself. wanted to die // TODO put limit on radius so it cant span further than the smallest line
 		segments.clear();
 		if(tangent1 == null || tangent2 == null)
 			return; // invalid tangents

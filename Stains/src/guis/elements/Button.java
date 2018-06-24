@@ -14,6 +14,7 @@ public class Button extends GameObject implements ClickListener {
 	boolean mouseHovered;
 	boolean feedback;
 	boolean clickedOn;
+	private boolean enabled;
 	Runnable callback;
 	
 	/**
@@ -33,23 +34,29 @@ public class Button extends GameObject implements ClickListener {
 		this.clickedOn = false;
 		this.feedback = feedback;
 		this.callback = callback;
+		this.enabled = true;
 		setActiveTexture(texture);
 		ClickListener.addToCallback(this, screen);
 	}
 	
+	/**
+	 * Tests to see if the button was clicked on and sets <code>mouseHovered</code> property which will call <code>callback</code> on next call to <code>handleRelease</code>
+	 * NOTE: ABSOLUTELY ESSENTIAL THIS IS CALLED FREQUENTLY OR BUTTON WILL NOT RESPOND
+	 */
 	public void update() {
-		if(Collision.pointCollidesAABB(Mouse.x, Mouse.y, x - width * scale / 2, y - height * scale / 2, width * scale, height * scale)) {
-			if(!mouseHovered) {
-				if(feedback)
-					onEnter();
-				mouseHovered = true;
-			}
-		}
-		else {
-			if(mouseHovered) {
-				if(feedback)
-					onExit();
-				mouseHovered = false;
+		if(enabled) {
+			if(Collision.pointCollidesAABB(Mouse.x, Mouse.y, x - width * scale / 2, y - height * scale / 2, width * scale, height * scale)) {
+				if(!mouseHovered) {
+					if(feedback)
+						onEnter();
+					mouseHovered = true;
+				}
+			} else {
+				if(mouseHovered) {
+					if(feedback)
+						onExit();
+					mouseHovered = false;
+				}
 			}
 		}
 	}
@@ -70,20 +77,34 @@ public class Button extends GameObject implements ClickListener {
 	
 	@Override
 	public void handleClick(int button) {
-		if(mouseHovered)
-			clickedOn = true;
-		else
-			clickedOn = false;
+		if(enabled) {
+			if(mouseHovered)
+				clickedOn = true;
+			else
+				clickedOn = false;
+		}
 	}
 
 	@Override
 	public void handleRelease(int button) {
-		if(mouseHovered && clickedOn) // only run if the click was pressed and released on this button
+		if(mouseHovered && clickedOn && enabled) // only run if the click was pressed and released on this button
 			select();
 	}
 	
 	public boolean isMouseHovering() {
-		return mouseHovered;
+		return mouseHovered && enabled;
+	}
+	
+	public void enable() {
+		enabled = true;
+	}
+	
+	public void disable() {
+		enabled = false;
+	}
+	
+	public boolean isEnabled() {
+		return enabled;
 	}
 
 }

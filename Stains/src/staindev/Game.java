@@ -164,7 +164,7 @@ public class Game {
 		glEnable(GL_POINT_SMOOTH);
 		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 		
-		// TODO buttons size should be relative to the screen width and height, not the button so buttons can be displayed the same on all screens
+		// FIXME buttons size should be relative to the screen width and height, not the button so buttons can be displayed the same on all screens
 		
 		
 		new Stain(100, 100, 0.8f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH);
@@ -179,7 +179,7 @@ public class Game {
 			updateGame();
 			renderGame();
 			
-			glfwSwapBuffers(window); // swap the color buffers (tick) TODO implement fps system. Update every 1/120 seconds, render at vsync
+			glfwSwapBuffers(window); // swap the color buffers (tick) XXX implement fps system. Update every 1/120 seconds, render at vsync
 			
 			checkError();
 			

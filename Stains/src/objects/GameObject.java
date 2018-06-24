@@ -87,4 +87,8 @@ public class GameObject {
 		this.activeTexture = activeTexture;
 	}
 	
+	public Surface getActiveTexture() {
+		return activeTexture;
+	}
+	
 }

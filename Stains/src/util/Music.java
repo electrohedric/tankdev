@@ -15,7 +15,7 @@ public class Music {
 	private static float volume;
 	/** whether or not sound is literally playing. <code>false</code> if stopped or paused */
 	public static boolean playing;
-	public static float mixerVolume = 1.0f;
+	public static float mixerVolume = 0.0f; // set to 0.0f to mute. 1.0f default
 	
 	/**
 	 * Creates a new Sound which can be played with multiple players

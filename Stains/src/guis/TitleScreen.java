@@ -25,7 +25,7 @@ public class TitleScreen extends Gui {
 			Sounds.SCARY.forcePlay();
 		}));
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.2f, 1.0f, Textures.Title.EDITOR, Mode.TITLE, true, () ->  {
-			EditorScreen.getInstance().switchTo(); //TODO wash out music with a swiping sound and change to editor track
+			EditorScreen.getInstance().switchTo(); //XXX wash out music with a swiping sound and change to editor track
 		}));
 		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.1f, 1.0f, Textures.Title.QUIT, Mode.TITLE, true, () ->  {
 			glfwSetWindowShouldClose(Game.window, true);

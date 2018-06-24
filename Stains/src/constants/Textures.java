@@ -46,7 +46,7 @@ public class Textures {
 	}
 	
 	public static class Editor {
-		public static Texture BG, LINE, FILLET, REMOVE, SAVE, LOAD, SPAWNPOINT, PLAYER_SPAWN;
+		public static Texture BG, LINE, FILLET, REMOVE, SAVE, LOAD, PLACE, PLAYER_SPAWN;
 		
 		private static void init() {
 			Texture.setLocalPath("guis/editor/");
@@ -56,7 +56,7 @@ public class Textures {
 				REMOVE = new Texture("remove.png");
 				SAVE = new Texture("save.png");
 				LOAD = new Texture("load.png");
-				SPAWNPOINT = new Texture("spawnpoint.png");
+				PLACE = new Texture("spawnpoint.png");
 				PLAYER_SPAWN = new Texture("player_spawn.png");
 		}
 	}

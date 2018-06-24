@@ -5,6 +5,9 @@ import gl.VertexArray;
 import gl.VertexBuffer;
 import gl.VertexBufferFormat;
 
+/**
+ * Rect VAO intended to be rendered using GL_TRIANGLES
+ */
 public class Rect {
 	
 	private static VertexArray vao;
