@@ -15,19 +15,19 @@ public class TitleScreen extends Gui {
 	
 	private TitleScreen() {
 		super(Textures.Title.BG);
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.5f, 1.0f, Textures.Title.CONTINUE, Mode.TITLE, false, () ->  {
+		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.5f, 0.15f, Textures.Title.CONTINUE, Mode.TITLE, false, () ->  {
 			Sounds.LEMON.forcePlay();
 		}));
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.4f, 1.0f, Textures.Title.NEWGAME, Mode.TITLE, false, () ->  {
+		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.4f, 0.15f, Textures.Title.NEWGAME, Mode.TITLE, true, () ->  {
 			Game.mode = Mode.PLAY;
 		}));
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.3f, 1.0f, Textures.Title.SETTINGS, Mode.TITLE, true, () ->  {
+		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.3f, 0.15f, Textures.Title.SETTINGS, Mode.TITLE, false, () ->  {
 			Sounds.SCARY.forcePlay();
 		}));
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.2f, 1.0f, Textures.Title.EDITOR, Mode.TITLE, true, () ->  {
+		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.2f, 0.15f, Textures.Title.EDITOR, Mode.TITLE, true, () ->  {
 			EditorScreen.getInstance().switchTo(); //XXX wash out music with a swiping sound and change to editor track
 		}));
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.1f, 1.0f, Textures.Title.QUIT, Mode.TITLE, true, () ->  {
+		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.1f, 0.15f, Textures.Title.QUIT, Mode.TITLE, true, () ->  {
 			glfwSetWindowShouldClose(Game.window, true);
 		}));
 		

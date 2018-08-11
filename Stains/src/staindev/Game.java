@@ -164,10 +164,7 @@ public class Game {
 		glEnable(GL_POINT_SMOOTH);
 		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 		
-		// FIXME buttons size should be relative to the screen width and height, not the button so buttons can be displayed the same on all screens
-		
-		
-		new Stain(100, 100, 0.8f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH);
+		new Stain(100, 100, 0.05f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH);
 		
 		TitleScreen.getInstance().switchTo();
 		

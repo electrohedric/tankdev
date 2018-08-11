@@ -7,7 +7,6 @@ import org.joml.Vector4f;
 
 import constants.Shaders;
 import gl.Shader;
-import objects.Line;
 import objects.Rect;
 import staindev.Game;
 import util.Camera;

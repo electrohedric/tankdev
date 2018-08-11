@@ -36,7 +36,8 @@ public class GameObject {
 	 * @param x Initial X
 	 * @param y Initial Y
 	 * @param rot Initial rotation, in radians
-	 * @param scale Initial scale from actual size
+	 * @param scale Scale of texture in relation to screen size. (e.g. 0.5 means no dimension of the texture will take up
+	 *              more than 50% of its corresponding screen dimension)
 	 */
 	public GameObject(float x, float y, float rot, float scale) {
 		this.x = x;
@@ -59,10 +60,11 @@ public class GameObject {
 			activeTexture.bind(slot);
 			Rect.bind(); // binds the VAO
 			proj.set(Game.proj);
+			float trueScale = getTrueScale();
 			model = model.
 					translation(x - camera.x, y - camera.y, 0).
 					rotate(rot - activeTexture.getOffsetRot(), 0.0f, 0.0f, 1.0f).
-					scale(scale, scale, 1.0f).
+					scale(trueScale, trueScale, 1.0f).
 					translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0).
 					scale(activeTexture.getWidth(), activeTexture.getHeight(), 1.0f);
 			mvp = proj.mul(model); // M x V x P
@@ -89,6 +91,19 @@ public class GameObject {
 	
 	public Surface getActiveTexture() {
 		return activeTexture;
+	}
+	
+	/**
+	 * Calculates the true scale of an object with the current texture scale being proportional to the screen size.
+	 * @return the corrected scale in number x the actual scale texture
+	 */
+	public float getTrueScale() {
+		if(activeTexture != null) {
+			float scaledWidthRatio = Game.WIDTH * scale / activeTexture.getWidth();
+			float scaledHeightRatio = Game.HEIGHT * scale / activeTexture.getHeight();
+			return Math.min(scaledWidthRatio, scaledHeightRatio);
+		}
+		return 0.0f;
 	}
 	
 }

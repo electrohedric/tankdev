@@ -9,13 +9,13 @@ import util.Mouse;
 
 public class Button extends GameObject implements ClickListener {
 
-	int width;
-	int height;
-	boolean mouseHovered;
-	boolean feedback;
-	boolean clickedOn;
+	private int width;
+	private int height;
+	protected boolean mouseHovered;
+	private boolean feedback;
+	protected boolean clickedOn;
 	private boolean enabled;
-	Runnable callback;
+	private Runnable callback;
 	
 	/**
 	 * Creates a button that executes a task when pressed
@@ -45,7 +45,8 @@ public class Button extends GameObject implements ClickListener {
 	 */
 	public void update() {
 		if(enabled) {
-			if(Collision.pointCollidesAABB(Mouse.x, Mouse.y, x - width * scale / 2, y - height * scale / 2, width * scale, height * scale)) {
+			float trueScale = getTrueScale();
+			if(Collision.pointCollidesAABB(Mouse.x, Mouse.y, x - width * trueScale / 2, y - height * trueScale / 2, width * trueScale, height * trueScale)) {
 				if(!mouseHovered) {
 					if(feedback)
 						onEnter();
@@ -105,6 +106,26 @@ public class Button extends GameObject implements ClickListener {
 	
 	public boolean isEnabled() {
 		return enabled;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public boolean isFeedback() {
+		return feedback;
+	}
+
+	public boolean isClickedOn() {
+		return clickedOn;
+	}
+
+	public Runnable getCallback() {
+		return callback;
 	}
 
 }

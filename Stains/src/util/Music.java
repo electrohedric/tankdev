@@ -13,8 +13,8 @@ public class Music {
 	private static float fadeForTime;
 	private static Runnable fadeCallback;
 	private static float volume;
-	/** whether or not sound is literally playing. <code>false</code> if stopped or paused */
-	public static boolean playing;
+	/** for internal use of quick response whether sound is supposed to be playing **/
+	private static boolean playing;
 	public static float mixerVolume = 0.0f; // set to 0.0f to mute. 1.0f default
 	
 	/**

@@ -75,23 +75,23 @@ public class EditorScreen extends Gui implements ClickListener {
 		super(Textures.Editor.BG);
 		RadioButtonChannel toolsChannel = new RadioButtonChannel();
 		
- 		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.8f, 1.0f, Textures.Editor.LINE, Mode.EDITOR, true, () -> {
+ 		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.8f, 0.1f, Textures.Editor.LINE, Mode.EDITOR, true, () -> {
  			firstPointDown = false;
 			tool = Tool.LINE;
 			setMousePointer(Cursors.POINTER);
 		}));
-		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.6f, 1.0f, Textures.Editor.FILLET, Mode.EDITOR, true, () -> {
+		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.6f, 0.1f, Textures.Editor.FILLET, Mode.EDITOR, true, () -> {
 			tool = Tool.FILLET;
 			setMousePointer(Cursors.HAND);
 		}));
-		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.4f, 1.0f, Textures.Editor.REMOVE, Mode.EDITOR, true, () -> {
+		elements.add(new RadioButton(toolsChannel, Game.WIDTH * 0.92f, Game.HEIGHT * 0.4f, 0.1f, Textures.Editor.REMOVE, Mode.EDITOR, true, () -> {
 			tool = Tool.REMOVE;
 			setMousePointer(Cursors.CROSS);
 		}));
 		this.tool = Tool.SELECT;
 		this.lastTool = tool;
 		
-		elements.add(new Button(Game.WIDTH * 0.92f, Game.HEIGHT * 0.2f, 1.0f, Textures.Editor.PLACE, Mode.EDITOR, true, () -> {
+		elements.add(new Button(Game.WIDTH * 0.92f, Game.HEIGHT * 0.2f, 0.1f, Textures.Editor.PLACE, Mode.EDITOR, true, () -> {
 			lastTool = tool;
 			tool = Tool.PLACE;
 			lastCursor = getMousePointer();
@@ -102,12 +102,12 @@ public class EditorScreen extends Gui implements ClickListener {
 			for(Button b : elements)
 				b.disable();
 		}));
-		elements.add(new Button(Game.WIDTH * 0.97f, Game.HEIGHT * 0.95f, 1.0f, Textures.Editor.SAVE, Mode.EDITOR, true, () -> {
+		elements.add(new Button(Game.WIDTH * 0.97f, Game.HEIGHT * 0.95f, 0.08f, Textures.Editor.SAVE, Mode.EDITOR, true, () -> {
 			saveMap();
 			if(Key.down(GLFW.GLFW_KEY_LEFT_SHIFT) || Key.down(GLFW.GLFW_KEY_RIGHT_SHIFT))
 				saveMapImage();
 		}));
-		elements.add(new Button(Game.WIDTH * 0.90f, Game.HEIGHT * 0.95f, 1.0f, Textures.Editor.LOAD, Mode.EDITOR, true, () -> {
+		elements.add(new Button(Game.WIDTH * 0.90f, Game.HEIGHT * 0.95f, 0.08f, Textures.Editor.LOAD, Mode.EDITOR, true, () -> {
 			loadMap();
 		}));
 		
@@ -130,9 +130,9 @@ public class EditorScreen extends Gui implements ClickListener {
 		float buttonSize = (menuWidth - borderSize * (menuDimX + 1)) / menuDimX;
 		this.showingPlaceMenu = false;
 		this.placeMenuBackground = new Plane(Game.WIDTH / 2, Game.HEIGHT / 2, menuWidth, menuHeight, 50, 50, 50, 200); // mostly opaque and dark gray
-		this.spawnPoint = new GameObject(Game.WIDTH / 2, Game.HEIGHT / 2, 0, 1.0f);
+		this.spawnPoint = new GameObject(Game.WIDTH / 2, Game.HEIGHT / 2, 0, 0.02f);
 		spawnPoint.setActiveTexture(Textures.Editor.PLAYER_SPAWN);
-		this.placing = new GameObject(0, 0, 0, 1.0f);
+		this.placing = new GameObject(0, 0, 0, 0); // placing any object in the popup menu
 		placing.brightScale = 0.4f; // make bright when placing
 		float menuLeft = Game.WIDTH / 2 - menuWidth / 2 + borderSize + buttonSize / 2;
 		//float menuRight = Game.WIDTH / 2 + menuWidth / 2 - borderSize - buttonSize / 2;
@@ -141,9 +141,8 @@ public class EditorScreen extends Gui implements ClickListener {
 		
 		// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 		// add menu buttons here with x=0,y=0 ... they will get organized right after
-		//DONEXT yet another reason the texture scale needs to change so we can set specific dimensions
-		placeMenuButtons.add(new Button(0, 0, 1.0f, Textures.KETCHUP_ALIVE, Mode.EDITOR, true, () -> {
-			placing.scale = 0.4f;
+		placeMenuButtons.add(new Button(0, 0, 0.05f, Textures.KETCHUP_ALIVE, Mode.EDITOR, true, () -> {
+			placing.scale = 0.03f;
 			placing.setActiveTexture(Textures.KETCHUP_ALIVE);
 			showingPlaceMenu = false;
 		}));
@@ -270,12 +269,12 @@ public class EditorScreen extends Gui implements ClickListener {
 		}
 	}
 	
-	@Override
 	public void render() {
-		super.render();
+		super.renderBackground();
 		// XXX grid possibly more effecient rendering?
 		for(Segment gridLine : gridLines)
 			gridLine.render(camera);
+		super.renderElements();
 		for(Arc arc : fillets)
 			arc.render(camera);
 		if(tool == Tool.FILLET) { // render extra ghost arc for the fillet tool
@@ -454,9 +453,9 @@ public class EditorScreen extends Gui implements ClickListener {
 			wall.setWidth(WALL_WIDTH);
 		}
 		
-		spawnPoint.scale = 0.5f;
+		spawnPoint.scale = 0.01f;
 		spawnPoint.render(fboCam);
-		spawnPoint.scale = 1.0f;
+		spawnPoint.scale = 0.02f;
 		
 		// save the fbo to a file
 		BufferedImage img = fbo.readPixels();

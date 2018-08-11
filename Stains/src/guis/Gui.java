@@ -26,11 +26,19 @@ public abstract class Gui {
 			b.update();
 	}
 	
-	public void render() {
+	protected void renderBackground() {
 		background.render();
+	}
+	
+	protected void renderElements() {
 		for(Button b : elements)
 			b.render();
 	}
+	
+	public void render() {
+		renderBackground();
+		renderElements();
+	};
 	
 	protected static void setMousePointer(long cursor) {
 		glfwSetCursor(Game.window, cursor);
