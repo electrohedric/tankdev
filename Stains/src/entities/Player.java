@@ -23,7 +23,7 @@ public class Player extends Entity implements ClickListener {
 		super(x, y, 0, 0, 0, scale);
 		this.moveSpeed = 200;
 		this.setActiveTexture(texture);
-		this.camera = new Camera(0, 0);
+		this.camera = new Camera(x, y);
 		ClickListener.addToCallback(this, Mode.PLAY);
 		instance = this;
 	}
@@ -54,7 +54,6 @@ public class Player extends Entity implements ClickListener {
 			move((float) Math.atan2(moveY, moveX)); // move in direction of key presses
 	}
 	
-	// FIXME it seems the offset got screwed up again
 	private void checkMouse() {
 		rot = (float) (Math.atan2(Mouse.y - Game.HEIGHT / 2, Mouse.x - Game.WIDTH / 2));
 	}
@@ -70,6 +69,7 @@ public class Player extends Entity implements ClickListener {
 	}
 	
 	public Camera getCamera() {
+		camera.setMouseXY(x, y);
 		return camera;
 	}
 	

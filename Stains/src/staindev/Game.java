@@ -69,14 +69,13 @@ public class Game {
 			throw new IllegalStateException("Unable to initialize GLFW");
 
 		// Configure GLFW
-		glfwDefaultWindowHints(); // optional, the current window hints are already the default
-		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+		glfwDefaultWindowHints();
 
 		// Create the window
 		GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		WIDTH = vidMode.width();
 		HEIGHT = vidMode.height();
+		
 		window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, glfwGetPrimaryMonitor(), 0);
 		if (window == 0)
 			throw new RuntimeException("Failed to create the GLFW window");
@@ -126,6 +125,24 @@ public class Game {
 		Point.init();
 		proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
 		projSave = new Matrix4f(proj);
+		
+		// Set the clear color
+		Renderer.setClearColor(0, 0, 0);
+
+		/*
+		 * +---+
+		 * |   |
+		 * +---+
+		 * x, y, u, v
+		 */
+		
+		// make stuff look nice
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_LINE_SMOOTH);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_POINT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 	}
 	
 	public static void checkError() {
@@ -146,25 +163,8 @@ public class Game {
 	}
 	
 	private static void loop() {
-		// Set the clear color
-		Renderer.setClearColor(0, 0, 0);
-
-		/*
-		 * +---+
-		 * |   |
-		 * +---+
-		 * x, y, u, v
-		 */
 		
-		// make stuff look nice
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_LINE_SMOOTH);
-		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-		glEnable(GL_POINT_SMOOTH);
-		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-		
-		new Stain(100, 100, 0.05f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH);
+		new Stain(100, 100, 0.05f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH); // for testing
 		
 		TitleScreen.getInstance().switchTo();
 		

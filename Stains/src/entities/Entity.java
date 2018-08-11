@@ -27,7 +27,7 @@ public abstract class Entity extends GameObject {
 	 * @param vx initial velocity in the x direction
 	 * @param vy initial velocity in the y direction
 	 * @param rot initial rotation, in radians
-	 * @param scale initial scale based on actual texture size (i.e. <code>1.0f</code> is 1:1 scale with texture)
+	 * @param scale initial scale based on screen size
 	 */
 	public Entity(float x, float y, float vx, float vy, float rot, float scale) {
 		super(x, y, rot, scale);

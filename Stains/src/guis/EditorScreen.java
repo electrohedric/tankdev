@@ -494,7 +494,7 @@ public class EditorScreen extends Gui implements ClickListener {
 		fileData.append("END\n");
 		
 		FileUtil.writeTo(Resources.MAPS_PATH + fileName, fileData.toString());
-		Sounds.SPRAY.forcePlay(); // XXX this needs to change
+		Sounds.SPRAY.forcePlay(); // XXX this sound needs to change
 		Log.log("Saved map as " + fileName);
 	}
 	

@@ -10,6 +10,11 @@ public class Camera {
 		this.y = y;
 	}
 	
+	public void setMouseXY(float x, float y) {
+		this.x = x;
+		this.y = y;
+	}
+	
 	public int getMouseX() {
 		return (int) (Mouse.x + x);
 	}

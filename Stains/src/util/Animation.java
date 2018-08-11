@@ -60,11 +60,13 @@ public class Animation extends Surface {
 		String format = pathFormat.replace("<", "%0").replace(">", "d"); // convert <n> to %0nd
 		while(true) {
 			String name = String.format(format, numFrames);
-			if(new File(Resources.TEXTURES_PATH + name).exists()) {
+			if(new File(Resources.TEXTURES_PATH + Texture.getLocalPath() + name).exists()) {
 				frames.add(new Texture(name, centerX, centerY, quarterTurns)); // create a new texture for that file
 				numFrames++;
 			} else break;
 		}
+		if(frames.isEmpty())
+			Log.warn("Couldn't find any texture(s) at '" + Resources.TEXTURES_PATH + Texture.getLocalPath() + pathFormat + "'");
 	}
 	
 	/**
