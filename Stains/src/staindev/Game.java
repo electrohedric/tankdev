@@ -14,16 +14,13 @@ import constants.Mode;
 import constants.Shaders;
 import constants.Sounds;
 import constants.Textures;
-import entities.Entity;
-import entities.Player;
-import entities.Stain;
 import gl.Renderer;
 import guis.EditorScreen;
+import guis.PlayScreen;
 import guis.TitleScreen;
 import objects.Line;
 import objects.Point;
 import objects.Rect;
-import util.Animation;
 import util.Camera;
 import util.ClickListener;
 import util.Cursors;
@@ -39,10 +36,10 @@ public class Game {
 	public static int WIDTH;
 	public static int HEIGHT;
 	public static float delta = 0.0f;
-	public static Mode mode = Mode.PAUSED;
+	public static Mode mode = Mode.BLANK;
 	public static Matrix4f proj = new Matrix4f(); // can't instantiate until WIDTH and HEIGHT are set
-	public static Matrix4f projSave = new Matrix4f();
-	public static Camera nullCamera = new Camera(0, 0);
+	public static Matrix4f projSave = new Matrix4f(); // projection matrix to save the initial state
+	public static final Camera nullCamera = new Camera(0, 0); // null camera doesn't change and is mostly for rendering UIs
 	
 	public static void main(String[] args) {
 		Log.log("LWJGL version " + Version.getVersion());
@@ -115,10 +112,13 @@ public class Game {
 		GL.createCapabilities();
 		Log.log("OpenGL version " + glGetString(GL_VERSION));
 		
+		Log.log("Loading textures");
 		Textures.init();
 		Shaders.init();
+		Log.log("Loading sounds");
 		Sounds.init();
 		Music.init();
+		Log.log("Loading geometry");
 		Cursors.init();
 		Rect.init();
 		Line.init();
@@ -163,9 +163,6 @@ public class Game {
 	}
 	
 	private static void loop() {
-		
-		new Stain(100, 100, 0.05f, Textures.KETCHUP_ALIVE, Textures.KETCHUP_DEATH); // for testing
-		
 		TitleScreen.getInstance().switchTo();
 		
 		// Run the rendering loop until the user has attempted to close
@@ -202,7 +199,7 @@ public class Game {
 	public static void updateGame() {
 		Mouse.getUpdate(); // poll mouse movement
 		glfwPollEvents(); // poll keypress/click events
-		Music.update();
+		Music.update(); // make sure music is update 
 		
 		switch(mode) {
 		case EDITOR:
@@ -211,22 +208,17 @@ public class Game {
 		case JANITOR:
 			
 			break;
-		case PAUSED:
+		case PAUSED: // in play mode, but paused
+			
+			break;
+		case BLANK:
 			
 			break;
 		case PLAY:
-			for(int i = Animation.queue.size() - 1; i >= 0; i--)
-				Animation.queue.get(i).update();
-			
-			for(int i = Entity.list.size() - 1; i >= 0; i--)
-				Entity.list.get(i).update();
-			
-			for(int i = Entity.list.size() - 1; i >= 0; i--)
-				if(Entity.list.get(i).isDead())
-					Entity.list.remove(i);
+			PlayScreen.getInstance().update();
 			break;
 		case TITLE:
-			TitleScreen.instance.update();
+			TitleScreen.getInstance().update();
 			break;
 		}
 	}
@@ -244,13 +236,14 @@ public class Game {
 		case PAUSED:
 			
 			break;
-		case PLAY:
+		case BLANK:
 			
-			for(Entity e : Entity.list)
-				e.render(Player.getInstance().getCamera());
+			break;
+		case PLAY:
+			PlayScreen.getInstance().render();
 			break;
 		case TITLE:
-			TitleScreen.instance.render();
+			TitleScreen.getInstance().render();
 			break;
 		}
 	}

@@ -1,5 +1,5 @@
 package constants;
 
 public enum Mode {
-	TITLE, PLAY, PAUSED, JANITOR, EDITOR;
+	TITLE, PLAY, PAUSED, JANITOR, EDITOR, BLANK;
 }

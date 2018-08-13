@@ -25,6 +25,8 @@ public class Texture extends Surface {
 	private float offsetX;
 	private float offsetY;
 	private float offsetRot;
+	private boolean isLoaded;
+	private String filename;
 	
 	private static String localPath = "";
 	
@@ -40,37 +42,64 @@ public class Texture extends Surface {
 	 */
 	public Texture(String name, float centerX, float centerY, float quarterTurns) {
 		super();
-		loadImageToGL(name);
+		basicInit(name);
+		loadImageToGL();
 		this.offsetX = centerX - (width / 2.0f);
 		this.offsetY = centerY - (height / 2.0f);
 		this.offsetRot = (float) (quarterTurns * Math.PI / 2);
 	}
 	
 	public Texture(String name, Anchor anchor) {
-		loadImageToGL(name);
+		super();
+		basicInit(name);
+		loadImageToGL();
 		this.offsetX = anchor.getX(width) - (width / 2.0f);
 		this.offsetY = anchor.getY(height) - (height / 2.0f);
 		this.offsetRot = 0;
 	}
-	
-	public Texture(String name) {
-		loadImageToGL(name);
-		offsetX = 0;
-		offsetY = 0;
+
+	/**
+	 * Creates, but does not load the texture if load is set to <code>false</code>. 
+	 * This is recommended when the texture is very large and needs to be loaded and deleted as needed
+	 * @param name
+	 * @param load
+	 */
+	public Texture(String name, boolean load) {
+		super();
+		basicInit(name);
+		if(load)
+			loadImageToGL();
+		this.offsetX = 0; // default offset none = middle
+		this.offsetY = 0;
 		this.offsetRot = 0;
+	}
+	
+	/**
+	 * Creates and loads a texture with default anchor as the center
+	 * @param name File name relative to <strong>res/textures</strong>
+	 */
+	public Texture(String name) {
+		this(name, true);
+	}
+	
+	private void basicInit(String name) {
+		this.filename = name;
+		this.isLoaded = false;
+		this.width = 0;
+		this.height = 0;
 	}
 	
 	public static void setLocalPath(String path) {
 		Texture.localPath = path;
 	}
 	
-	public void loadImageToGL(String name) {
+	public void loadImageToGL() {
 		String fullLocalPath = Resources.TEXTURES_PATH + Texture.localPath;
 		BufferedImage image = null;
 		try {
-			image = ImageIO.read(new File(fullLocalPath + name));
+			image = ImageIO.read(new File(fullLocalPath + filename));
 		} catch (IOException e) {
-			Log.err("Cannot open file: " + fullLocalPath + name);
+			Log.err("Cannot open file: " + fullLocalPath + filename);
 		}
 		
 		width = image.getWidth();
@@ -88,6 +117,7 @@ public class Texture extends Surface {
 		data.put(storeBytes);
 		data.flip(); // openGL wants data starting from bottom left corner
 		
+		isLoaded = true;
 		id = glGenTextures();
 		bind();
 		
@@ -100,8 +130,11 @@ public class Texture extends Surface {
 	}
 	
 	public void bind(int slot) {
-		glActiveTexture(GL_TEXTURE0 + slot);
-		glBindTexture(GL_TEXTURE_2D, id);
+		if(isLoaded) {
+			glActiveTexture(GL_TEXTURE0 + slot);
+			glBindTexture(GL_TEXTURE_2D, id);
+		} else
+			throw new IllegalStateException("Tried to bind " + filename + " but can't because texture not loaded"); // XXX: for debugging, instead bind a dev null texture
 	}
 	
 	public void bind() {
@@ -114,6 +147,7 @@ public class Texture extends Surface {
 	
 	public void delete() {
 		glDeleteTextures(id);
+		isLoaded = false;
 	}
 
 	public int getWidth() {
@@ -134,6 +168,10 @@ public class Texture extends Surface {
 	
 	public float getOffsetRot() {
 		return offsetRot;
+	}
+	
+	public String getFilename() {
+		return filename;
 	}
 	
 	public static String getLocalPath() {

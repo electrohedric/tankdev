@@ -24,14 +24,14 @@ public interface ClickListener {
 	public static List<ClickListener> getCallbackList(Mode mode) {
 		switch(mode) {
 		case EDITOR: return editorMouseClickCallback;
-		case JANITOR:
-			break;
-		case PAUSED:
-			break;
+		case JANITOR: break;
+		case PAUSED: break;
 		case PLAY: return playMouseClickCallback;
 		case TITLE: return titleMouseClickCallback;
+		default: break;
 		}
-		throw new IllegalArgumentException("The ClickListener doesn't support " + mode + " mode yet. Might want to add that.");
+		// throw an error instead of returning null which just pushes the issue down the line
+		throw new UnsupportedOperationException("The ClickListener doesn't support " + mode + " mode yet. Might want to add that.");
 	}
 	
 }

@@ -11,7 +11,7 @@ import util.Music;
 
 public class TitleScreen extends Gui {
 	
-	public static TitleScreen instance;
+	private static TitleScreen instance;
 	
 	private TitleScreen() {
 		super(Textures.Title.BG);
