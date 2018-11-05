@@ -1,1 +1,0 @@
-map-background.png<vertices>#x, y0,00,600600,600600,0<shapes>#vertex 1, vertex 2, ... : fillet amt 1, fillet amt 2, ...0,1,2,3:0,0,250,0
