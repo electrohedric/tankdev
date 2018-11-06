@@ -1,11 +1,15 @@
 package util;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
+
+import javax.imageio.ImageIO;
 
 public class FileUtil {
 
@@ -38,7 +42,7 @@ public class FileUtil {
 	 */
 	public static String readFrom(String path) {
 		String data = "";
-	    try {
+		try {
 			data = new String(Files.readAllBytes(Paths.get(path)));
 		} catch (IOException e) {
 			if(e instanceof NoSuchFileException)
@@ -47,5 +51,16 @@ public class FileUtil {
 				e.printStackTrace();
 		}
 	    return data;
+	}
+	
+	public static ImageStore loadImage(String path) {
+		BufferedImage image = null;
+		try {
+			image = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			Log.err("Cannot open file: " + path);
+		}
+		
+		return new ImageStore(image);
 	}
 }

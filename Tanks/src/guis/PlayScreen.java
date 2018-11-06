@@ -1,19 +1,21 @@
 package guis;
 
 import constants.Mode;
-import constants.Textures;
 import entities.Entity;
 import entities.Player;
-import gl.Texture;
 import main.Game;
+import map.Map;
 import util.Animation;
 
 public class PlayScreen extends Gui {
 	
 	private static PlayScreen instance;
 	
-	public PlayScreen(Texture background) {
-		super(background);
+	Map map;
+	
+	public PlayScreen() {
+		super(null);
+		map = null; // no map loaded
 		
 		instance = this;
 	}
@@ -25,7 +27,6 @@ public class PlayScreen extends Gui {
 	
 	@Override
 	public void update() {
-		PlayScreen.getInstance().update();
 		for(int i = Animation.queue.size() - 1; i >= 0; i--)
 			Animation.queue.get(i).update();
 		
@@ -39,6 +40,8 @@ public class PlayScreen extends Gui {
 	
 	@Override
 	public void render() {
+		if(map != null)
+			map.render();
 		for(Entity e : Entity.list)
 			e.render(Player.getInstance().getCamera());
 	}
@@ -47,12 +50,11 @@ public class PlayScreen extends Gui {
 		if(instance != null)
 			return instance;
 		else
-			return new PlayScreen(Textures.Title.BG);
+			return new PlayScreen();
 	}
 	
-	public void loadMap() {
-		
+	public void loadMap(String name) {
+		this.map = new Map(name);
 	}
 	
-
 }

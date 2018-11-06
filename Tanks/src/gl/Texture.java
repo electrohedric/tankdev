@@ -4,18 +4,14 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL13.*;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-
-import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
 
 import constants.Resources;
 import objects.Surface;
-import util.Log;
+import util.FileUtil;
+import util.ImageStore;
 
 public class Texture extends Surface {
 	
@@ -44,18 +40,13 @@ public class Texture extends Surface {
 		super();
 		basicInit(name);
 		loadImageToGL();
-		this.offsetX = centerX - (width / 2.0f);
-		this.offsetY = centerY - (height / 2.0f);
+		this.offsetX = width * (centerX -  0.5f);
+		this.offsetY = height * (centerY -  0.5f);
 		this.offsetRot = (float) (quarterTurns * Math.PI / 2);
 	}
 	
 	public Texture(String name, Anchor anchor) {
-		super();
-		basicInit(name);
-		loadImageToGL();
-		this.offsetX = anchor.getX(width) - (width / 2.0f);
-		this.offsetY = anchor.getY(height) - (height / 2.0f);
-		this.offsetRot = 0;
+		this(name, anchor.getX(), anchor.getY(), 0);
 	}
 
 	/**
@@ -95,23 +86,15 @@ public class Texture extends Surface {
 	
 	public void loadImageToGL() {
 		String fullLocalPath = Resources.TEXTURES_PATH + Texture.localPath;
-		BufferedImage image = null;
-		try {
-			image = ImageIO.read(new File(fullLocalPath + filename));
-		} catch (IOException e) {
-			Log.err("Cannot open file: " + fullLocalPath + filename);
-		}
-		
-		width = image.getWidth();
-		height = image.getHeight();
-		int size = width * height * 4; // width * height * channels
-		int[] store = new int[size];
-		image.getData().getPixels(0, 0, image.getWidth(), image.getHeight(), store);
+		ImageStore store = FileUtil.loadImage(fullLocalPath + filename);
+		this.width = store.getWidth();
+		this.height = store.getHeight();
 		
 		// cast array to bytes for the ByteBuffer
+		int size = store.pixels.length;
 		byte[] storeBytes = new byte[size];
 		for(int i = 0; i < size; i++)
-			storeBytes[i] = (byte) store[i];
+			storeBytes[i] = (byte) store.pixels[i];
 		
 		ByteBuffer data = BufferUtils.createByteBuffer(size);
 		data.put(storeBytes);
@@ -181,29 +164,29 @@ public class Texture extends Surface {
 	public enum Anchor {
 		TOP_LEFT, TOP_CENTER, TOP_RIGHT, MIDDLE_LEFT, CENTER, MIDDLE_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT;
 		
-		float getX(int w) {
+		float getX() {
 			switch(this) {
-			case BOTTOM_CENTER: return w / 2;
+			case BOTTOM_CENTER: return 0.5f;
 			case BOTTOM_LEFT: return 0;
-			case BOTTOM_RIGHT: return w;
-			case CENTER: return w / 2;
+			case BOTTOM_RIGHT: return 1.0f;
+			case CENTER: return 0.5f;
 			case MIDDLE_LEFT: return 0;
-			case MIDDLE_RIGHT: return w;
-			case TOP_CENTER: return w / 2;
+			case MIDDLE_RIGHT: return 1.0f;
+			case TOP_CENTER: return 0.5f;
 			case TOP_LEFT: return 0;
-			case TOP_RIGHT: return w;
+			case TOP_RIGHT: return 1.0f;
 			default: return 0;
 			}
 		}
 		
-		float getY(int h) {
+		float getY() {
 			switch(this) {
-			case BOTTOM_CENTER: return h;
-			case BOTTOM_LEFT: return h;
-			case BOTTOM_RIGHT: return h;
-			case CENTER: return h / 2;
-			case MIDDLE_LEFT: return h / 2;
-			case MIDDLE_RIGHT: return h / 2;
+			case BOTTOM_CENTER: return 1.0f;
+			case BOTTOM_LEFT: return 1.0f;
+			case BOTTOM_RIGHT: return 1.0f;
+			case CENTER: return 0.5f;
+			case MIDDLE_LEFT: return 0.5f;
+			case MIDDLE_RIGHT: return 0.5f;
 			case TOP_CENTER: return 0;
 			case TOP_LEFT: return 0;
 			case TOP_RIGHT: return 0;

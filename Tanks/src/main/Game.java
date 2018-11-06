@@ -72,7 +72,7 @@ public class Game {
 		WIDTH = vidMode.width();
 		HEIGHT = vidMode.height();
 		
-		window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, glfwGetPrimaryMonitor(), 0);
+		window = glfwCreateWindow(WIDTH, HEIGHT, TITLE, glfwGetPrimaryMonitor(), 0); // glfwGetPrimaryMonitor(), 0); for full screen OR 0, 0); for windowed
 		if (window == 0)
 			throw new RuntimeException("Failed to create the GLFW window");
 
@@ -122,7 +122,7 @@ public class Game {
 		Rect.init();
 		Line.init();
 		Point.init();
-		proj = new Matrix4f().ortho(0, Game.WIDTH, 0, Game.HEIGHT, -1.0f, 1.0f);
+		proj = new Matrix4f().ortho(0, Game.WIDTH, Game.HEIGHT, 0, -1.0f, 1.0f); // 0, 0 is top left
 		projSave = new Matrix4f(proj);
 		
 		// Set the clear color
@@ -162,7 +162,8 @@ public class Game {
 	}
 	
 	private static void loop() {
-		TitleScreen.getInstance().switchTo();
+		PlayScreen.getInstance().switchTo();
+		PlayScreen.getInstance().loadMap("default.png");
 		
 		// Run the rendering loop until the user has attempted to close
 		// the window or has pressed the ESCAPE key.

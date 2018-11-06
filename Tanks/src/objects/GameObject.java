@@ -65,7 +65,7 @@ public class GameObject {
 					translation(x - camera.x, y - camera.y, 0).
 					rotate(rot - activeTexture.getOffsetRot(), 0.0f, 0.0f, 1.0f).
 					scale(trueScale, trueScale, 1.0f).
-					translate(-activeTexture.getOffsetX(), activeTexture.getOffsetY(), 0).
+					translate(-activeTexture.getOffsetX(), -activeTexture.getOffsetY(), 0).
 					scale(activeTexture.getWidth(), activeTexture.getHeight(), 1.0f);
 			mvp = proj.mul(model); // M x V x P
 			

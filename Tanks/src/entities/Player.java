@@ -32,7 +32,7 @@ public class Player extends Entity implements ClickListener {
 		if(instance != null)
 			return instance;
 		else
-			return new Player(500, 500, 0.05f, Textures.PLAYER);
+			return new Player(500, 500, 0.05f, Textures.BASIC);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class Player extends Entity implements ClickListener {
 
 	@Override
 	public void handleClick(int button) {
-		Sounds.SPRAY.forcePlay();
+//		Sounds.SPRAY.forcePlay();
 	}
 
 	@Override

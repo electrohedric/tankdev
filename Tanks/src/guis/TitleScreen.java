@@ -14,19 +14,19 @@ public class TitleScreen extends Gui {
 	private static TitleScreen instance;
 	
 	private TitleScreen() {
-		super(Textures.Title.BG);
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.5f, 0.15f, Textures.Title.CONTINUE, Mode.TITLE, false, () ->  {
-			Sounds.LEMON.forcePlay();
-		}));
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.4f, 0.15f, Textures.Title.NEWGAME, Mode.TITLE, true, () ->  {
-			Game.mode = Mode.PLAY;
-		}));
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.3f, 0.15f, Textures.Title.SETTINGS, Mode.TITLE, false, () ->  {
-			Sounds.SCARY.forcePlay();
-		}));
-		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.1f, 0.15f, Textures.Title.QUIT, Mode.TITLE, true, () ->  {
-			glfwSetWindowShouldClose(Game.window, true);
-		}));
+		super(null);
+//		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.5f, 0.15f, Textures.Title.CONTINUE, Mode.TITLE, false, () ->  { // TODO reimplement
+//			Sounds.LEMON.forcePlay();
+//		}));
+//		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.4f, 0.15f, Textures.Title.NEWGAME, Mode.TITLE, true, () ->  {
+//			Game.mode = Mode.PLAY;
+//		}));
+//		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.3f, 0.15f, Textures.Title.SETTINGS, Mode.TITLE, false, () ->  {
+//			Sounds.SCARY.forcePlay();
+//		}));
+//		elements.add(new Button(Game.WIDTH * 0.5f, Game.HEIGHT * 0.1f, 0.15f, Textures.Title.QUIT, Mode.TITLE, true, () ->  {
+//			glfwSetWindowShouldClose(Game.window, true);
+//		}));
 		
 		instance = this;
 	}
@@ -46,9 +46,9 @@ public class TitleScreen extends Gui {
 	@Override
 	public void switchTo() {
 		Game.mode = Mode.TITLE;
-		Music.queue(Sounds.TITLE_INTRO);
-		Music.queueLoop(Sounds.TITLE_LOOP);
-		Music.play();
+//		Music.queue(Sounds.TITLE_INTRO);
+//		Music.queueLoop(Sounds.TITLE_LOOP);
+//		Music.play(); TODO reimplement
 	}
 
 }
