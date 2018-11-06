@@ -49,8 +49,10 @@ public class Map {
 					blocks[i] = createSolidBlock(x, y);
 				} else if(light == 255) { // white is air
 					blocks[i] = createAirBlock(x, y);
-				} else { // gray is breakable
+				} else if(light > 127) { // dark gray is breakable
 					blocks[i] = createBreakableBlock(x, y);
+				} else {
+					blocks[i] = createHoleBlock(x, y);
 				}
 			}
 		}
@@ -98,6 +100,10 @@ public class Map {
 	
 	private BlockBreakable createBreakableBlock(int x, int y) {
 		return new BlockBreakable(displayX(x), displayY(y), textureScale(), x, y, Textures.BREAK);
+	}
+	
+	private BlockHole createHoleBlock(int x, int y) {
+		return new BlockHole(displayX(x), displayY(y), textureScale(), x, y, Textures.HOLE);
 	}
 	
 	public void render() {

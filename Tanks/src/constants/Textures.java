@@ -12,13 +12,14 @@ public class Textures {
 	
 	public static List<Surface> allTextures = new ArrayList<>();
 	
-	public static Texture BASIC, WALL, BREAK;
+	public static Texture BASIC, WALL, BREAK, HOLE;
 	
 	public static void init() {
 		Texture.setLocalPath("");
 			BASIC = new Texture("basictank.png", 0.5f, 0.5f, 1);
 			WALL = new Texture("basicwall.png", Anchor.TOP_LEFT);
 			BREAK = new Texture("basicbroken.png", Anchor.TOP_LEFT);
+			HOLE = new Texture("basichole.png", Anchor.TOP_LEFT);
 		
 	}
 	
